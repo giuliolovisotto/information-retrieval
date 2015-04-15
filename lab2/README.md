@@ -25,4 +25,4 @@ The script *weights.py* builds a dictionary with the unique words, then builds a
 | doc3 | 0 | 3 ...   
 +---------+---+------  
 
-with this matrix we use the _TfidfTransformer_ of the [scikit-learn](www.scikit-learn.org) module to get a matrix with the tfidf weights. Finally we save them to the file.
+with this matrix we use the _TfidfTransformer_ of the [scikit-learn](http://scikit-learn.org) module to get a matrix with the tfidf weights. Finally we save them to the file.
