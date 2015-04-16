@@ -1,0 +1,54 @@
+\title{Laboratorio 3}
+\author{
+        Catalin Copil
+            \and
+        Mattia de Stefani
+            \and
+        Giulio Lovisotto
+}
+\date{\today}
+
+\documentclass[12pt]{article}
+
+\begin{document}
+\maketitle
+
+\section*{Descrizione}
+
+Abbiamo scelto di usare l'algoritmo di ranking BM25 .
+Tale algoritmo funziona nel modo seguente:
+
+\[ \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i} \]
+
+dove:
+\begin{itemize}
+\item $i$ sono i termini della query $Q$, 
+\item $r_i$ e' il numero di documenti rilevanti che contiene il termine $i$,
+\item $R$ e' il numero di documenti rilevanti per la query, 
+\item $n_i$ e' il numero di documenti che contiene il termine $i$ nella collezione,
+\item $N$ e' il numero totale di documenti nella collezione, 
+\item $k_1, k_2$ sono parametri,
+\item $f_i$ e' la frequenza del termine $i$ nel documento,
+\item $qf_i$ e' la frequenza del termine $i$ nella query,
+\item $K$ e' definito nel modo seguente:
+\[ K = k_1((1-b) +b \cdot \frac{dl}{avdl}) \]
+dove $b$ e' un parametro, $dl$ e' la lunghezza del documento, $avdl$ e' la lunghezza media di un documento nella collezione. Questo termine serve a normalizzare il componente di frequenza rispetto alla lunghezza del documento (per non favorire i documenti troppo lunghi).
+\end{itemize}
+I termini $R$ e $r_i$ sono informazioni note a priori, tipicamente sono settati a zero in quanto non si hanno informazioni sulla rilevanza. Nel nostro caso li ignoriamo in un primo momento lasciandoli a zero.
+
+\section*{Implementazione}
+ 
+Descriviamo ora le strutture dati necessarie al reperimento che vengono calcolate durante l'indicizzazione. 
+\begin{itemize}
+\item matrice delle frequenze n\_docs x n\_words
+\item un vettore che contiene le lunghezze dei documenti
+\end{itemize}
+La funzione di reperimento scorrera' la lista di documenti (le righe della matrice), e per ogni documento scorrera' sui termini della query $Q$ (Document-at-a-time retrieval). Poi i documenti con punteggio maggiore di zero verranno ordinati (dal maggiore al minore).
+
+I prossimi passi saranno quelli di tenere in considerazione le informazioni di rilevanza contenute nel file \textit{qrels.txt} per ottimizzare il reperimento (abbiamo gia' i documenti rilevanti per ogni query). Useremo l'utility \textit{trec\_eval} per scegliere la configurazione che produce il miglior risultato.
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
+This is never printed
