@@ -1,9 +1,29 @@
 __author__ = 'giulio'
 
 import numpy as np
-
+import sys
+from joblib import cpu_count, Parallel, delayed
 # ricorda che gli stem che ti ha fornito non rappresentano bisogno informativi
 # esempio cercare l'autore (query 2) dire 'non sono interested in ___' (query 6) etc
+
+def p(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
+    print pj
+    for i, row in enumerate(fm):
+        score = 0
+        for qw in pqw:
+            if qw not in pwords:
+                score += 0
+            else:
+                index_of_qw = pwords[qw]
+                n_i = np.count_nonzero(fm[:, index_of_qw])
+                idf = np.log((N - n_i + 0.5)/(n_i + 0.5))
+                dl = dls[i]
+                K = k1*((1-b) + b*(dl/avdl))
+
+                tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
+                tf2 = (k2 + 1)*1/(k2 + 1)
+                score += idf * tf1 * tf2
+                res[pj, i, :] = np.array([i, score])
 
 
 def indexing():
@@ -60,16 +80,22 @@ def retrieve():
     N = freq_mat.shape[0]
     k1 = 1.2
     k2 = 1.2
-    b = 0.5
+    b = 0.1  # lascio basso perche normalizzare sulla lunghezza e' un po inutile nel nostro caso (abbiamo solo le kw)
     avdl = np.mean(docs_length)
 
-    f = open('results.txt', 'w')
+    results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
 
-    for q in queries.keys():
-        results = np.zeros(shape=(N, 2))
-        print "Query %s" % q
+    Parallel(n_jobs=cpu_count())(delayed(p)(
+        freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
+    ) for pj, (q, lst) in enumerate(queries.iteritems()))
+
+    '''
+    for j, q in enumerate(queries.keys()):
+
+        sys.stdout.write("\rQuery %s of %s" % (j+1, len(queries)))
+        # print "Query %s" % q
         query_words = queries[q]
-        print query_words
+        # print query_words
         for i, row in enumerate(freq_mat):
             score = 0
             for qw in query_words:
@@ -85,16 +111,30 @@ def retrieve():
                     tf1 = (k1 + 1)*freq_mat[i, index_of_qw]/(K + freq_mat[i, index_of_qw])
                     tf2 = (k2 + 1)*1/(k2 + 1)
                     score += idf * tf1 * tf2
-                    results[i, :] = np.array([i, score])
+                    results[j, i, :] = np.array([i, score])
 
-        indx = np.argsort(results[:, 1])[::-1][0:1000]
-        stuff_toprint = results[indx]
-        stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > 0]
-        for i, row in enumerate(stuff_toprint):
-            f.write("%s Q0 %s %s %s G17R3\n" % (q, int(row[0]), i+1, row[1]))
-
-        f.close()
+        # indx = np.argsort(results[j, :, 1])[::-1][0:1000]
+        # stuff_toprint = results[j, indx]
+        # stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > 0]
+        # for i, row in enumerate(stuff_toprint):
+        #     f.write("%s Q0 %s %s %s G17R3\n" % (q, int(row[0]), i+1, row[1]))
         break
+    # f.close()
+    '''
+
+    # considera e retrieva solo i documenti con uno score almeno threshold
+    # aumento threshold, diminuisce percentuale di documenti rilevanti retrieved
+    threshold = 0.2
+
+    f = open('results.txt', 'w')
+    for j, query in enumerate(results):
+        indx = np.argsort(results[j, :, 1])[::-1][0:1000]
+        stuff_toprint = results[j, indx]
+        stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > threshold]
+        for i, row in enumerate(stuff_toprint):
+            f.write("%s Q0 %s %s %s G17R3\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
+    f.close()
+
 
 
             #if score > 0:
@@ -105,5 +145,5 @@ def retrieve():
 
 
 if __name__ == "__main__":
-    print "ciao"
+
     retrieve()
