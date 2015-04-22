@@ -12,7 +12,12 @@
 \documentclass[12pt]{article}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
-\usepackage{graphicx}    
+\usepackage{graphicx}
+\usepackage{geometry}
+
+
+
+\addtolength{\topmargin}{-.5in}
 \begin{document}
 \maketitle
 
@@ -62,20 +67,17 @@ La funzione di reperimento scorrera' la lista di documenti (le righe della matri
 
 La complessita' di tale algoritmo e' $O(n \cdot m)$ dove $n$ e' il numero di documenti nella collezione $C$, e $m$ e' il numero di descrittori nell'interrogazione $Q$. Per i parametri abbiamo scelto: $k1=1.2$, $k2=1$, $b=0$, in quanto fornivano la migliore precisione nei risultati. Il termine $b$ a zero significa che non viene applicato alcuno $smoothing$ sulle frequenze rispetto alla lunghezza del documento, nel nostro caso cio' funziona perche' i documenti sono in genere molto corti.
 
-\section{Results}
+\section{Risultati}
 Abbiamo valutato i risultati della nostra implementazione con l'utility \textit{trec\_eval} e abbiamo ottenuto i risultati riportati in figura.
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=0.8\textwidth]{myresult.png}
+\includegraphics[width=0.75\textwidth]{myresult.png}
 \caption{Risultati \textit{trec\_eval}}
 \label{default}
 \end{center}
 \end{figure}
 
 Si puo' vedere che la $map$ e' piuttosto bassa. Indagando sulle query abbiamo notato che alcune di esse contengono bisogni informativi legati agli autori (``I am interested in articles written either by Prieve or Udo PoochPrieve, B. Pooch, U.''), e nella nostra implementazione cio' non e' colto in quanto nei documenti indicizzati il campo autori e' ignorato (nei file non sono presenti gli stem degli autori). Inoltre non sempre gli stem presenti nei file forniti rappresentano sempre il bisogno informativo (``Interested in articles on robotics, motion planning particularly the geometric and combinatorial aspects. We are not interested in the dynamics of arm motion.'') in quanto il modello scelto non permette di esprimere condizioni booleane.
-
-
-\subsection{Lucene}
 
 \bibliographystyle{abbrv}
 \bibliography{main}

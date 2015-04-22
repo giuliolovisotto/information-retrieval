@@ -133,7 +133,7 @@ def retrieve():
         stuff_toprint = results[j, indx]
         stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > threshold]
         for i, row in enumerate(stuff_toprint):
-            f.write("%s Q0 %s %s %s G17R3\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
+            f.write("%s Q0 %s %s %s G12R9\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
     f.close()
 
 
