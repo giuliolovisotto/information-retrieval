@@ -8,22 +8,23 @@ from joblib import cpu_count, Parallel, delayed
 
 def p(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     print pj
+    actual_qw = []
+    for qw in pqw:
+        if qw in pwords:
+            actual_qw.append(qw)
     for i, row in enumerate(fm):
         score = 0
-        for qw in pqw:
-            if qw not in pwords:
-                score += 0
-            else:
-                index_of_qw = pwords[qw]
-                n_i = np.count_nonzero(fm[:, index_of_qw])
-                idf = np.log((N - n_i + 0.5)/(n_i + 0.5))
-                dl = dls[i]
-                K = k1*((1-b) + b*(dl/avdl))
+        for qw in actual_qw:
+            index_of_qw = pwords[qw]
+            n_i = np.count_nonzero(fm[:, index_of_qw])
+            idf = np.log((N - n_i + 0.5)/(n_i + 0.5))
+            dl = dls[i]
+            K = k1*((1-b) + b*(dl/avdl))
 
-                tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
-                tf2 = (k2 + 1)*1/(k2 + 1)
-                score += idf * tf1 * tf2
-                res[pj, i, :] = np.array([i, score])
+            tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
+            tf2 = (k2 + 1)*1/(k2 + 1)
+            score += idf * tf1 * tf2
+            res[pj, i, :] = np.array([i, score])
 
 
 def indexing():
@@ -80,7 +81,7 @@ def retrieve():
     N = freq_mat.shape[0]
     k1 = 1.2
     k2 = 1.2
-    b = 0.1  # lascio basso perche normalizzare sulla lunghezza e' un po inutile nel nostro caso (abbiamo solo le kw)
+    b = 0.0  # lascio basso perche normalizzare sulla lunghezza e' un po inutile nel nostro caso (abbiamo solo le kw)
     avdl = np.mean(docs_length)
 
     results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
@@ -124,7 +125,7 @@ def retrieve():
 
     # considera e retrieva solo i documenti con uno score almeno threshold
     # aumento threshold, diminuisce percentuale di documenti rilevanti retrieved
-    threshold = 0.2
+    threshold = 0.0
 
     f = open('results.txt', 'w')
     for j, query in enumerate(results):
