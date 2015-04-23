@@ -6,26 +6,62 @@ from joblib import cpu_count, Parallel, delayed
 # ricorda che gli stem che ti ha fornito non rappresentano bisogno informativi
 # esempio cercare l'autore (query 2) dire 'non sono interested in ___' (query 6) etc
 
-def p(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
+def p(fm, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     print pj
     actual_qw = []
+    indexes_of_qws = []
     for qw in pqw:
         if qw in pwords:
             actual_qw.append(qw)
+            indexes_of_qws.append(pwords[qw])
+
+    indexes_of_qws = np.array(indexes_of_qws)
+    tmp = np.arange(0, fm.shape[1])
+    indexes_of_qws = np.in1d(tmp, indexes_of_qws)
+    red_fm = fm[:, indexes_of_qws]
+    idfs = np.ones(shape=(red_fm.shape[0], red_fm.shape[1]))
+    tmp2 = np.copy(red_fm)
+    tmp2[tmp2 != 0] = 1
+    nis = tmp2.sum(axis=0)
+    Ns = np.ones(red_fm.shape[1])*N
+    idfs = np.log((Ns - nis + 0.5)/(nis + 0.5))
+    Ks = k1*((1-b) + b*(dls/avdl))
+    tf1s = red_fm*(k1 + 1)/(np.tile(Ks, (red_fm.shape[1], 1)).T + red_fm)
+    tf2s = np.ones(red_fm.shape)
+    ress = np.multiply(idfs, tf1s)
+    # ress = np.multiply(ress, tf2s)
+    ress = ress.sum(axis=1)
+    idss = np.arange(0, red_fm.shape[0])
+    res[pj, :, :] = np.vstack((idss, ress)).T
+    '''
     for i, row in enumerate(fm):
         score = 0
+        # print "docuemnto %s" % i
+        dl = dls[i]
         for qw in actual_qw:
+            #print qw, i
+
             index_of_qw = pwords[qw]
             n_i = np.count_nonzero(fm[:, index_of_qw])
+            #print "indice of queryword: %s, # doc compare: %s" % (index_of_qw, n_i)
+            # num = N-n_i+0.5
+            # den = n_i + 0.5
+            # print num, den
             idf = np.log((N - n_i + 0.5)/(n_i + 0.5))
-            dl = dls[i]
+            #print "idf: %s" % idf
+            #print "doc length %s" % dl
             K = k1*((1-b) + b*(dl/avdl))
-
+            #print "K: %s, k1:%s, b:%s, avdl:%s " % (K, k1, b, avdl)
+            #print "valore di %s in doc %s: %s" % (qw, i, fm[i, index_of_qw])
             tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
             tf2 = (k2 + 1)*1/(k2 + 1)
+            #print tf1, tf2, idf
             score += idf * tf1 * tf2
+        # print "score per doc %s: %s" %(i, score)
+        if score != 0:
             res[pj, i, :] = np.array([i, score])
-
+            # print "salvo in %s,%s la roba %s,%s" % (pj, i, i, score)
+    '''
 
 def indexing():
     freq_docid_words = np.loadtxt("data/freq.docid.stem.txt", dtype='str')
@@ -43,6 +79,7 @@ def indexing():
     f = open('data/docid.only-keywords.txt')
 
     n_docs = len(f.readlines())
+    # n_docs = 5
     print "%s documents" % n_docs
 
     f.close()
@@ -66,7 +103,7 @@ def indexing():
 def retrieve():
     freq_mat, docs_length, words = indexing()
 
-    query_stem = np.loadtxt("query-stem.txt", dtype='str', delimiter="\t ")
+    query_stem = np.loadtxt("data/query-stem.txt", dtype='str', delimiter="\t ")
 
     queries = {}
     # print words
@@ -77,17 +114,17 @@ def retrieve():
             queries[q_id] = [w]
         else:
             queries[q_id].append(w)
-    #print queries
+    print queries
     N = freq_mat.shape[0]
-    k1 = 1.2
+    k1 = 0.01
     k2 = 1.2
     b = 0.0  # lascio basso perche normalizzare sulla lunghezza e' un po inutile nel nostro caso (abbiamo solo le kw)
     avdl = np.mean(docs_length)
 
     results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
-
+    results[:] = 0
     Parallel(n_jobs=cpu_count())(delayed(p)(
-        freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
+        freq_mat, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
     ) for pj, (q, lst) in enumerate(queries.iteritems()))
 
     '''
@@ -129,7 +166,7 @@ def retrieve():
 
     f = open('results.txt', 'w')
     for j, query in enumerate(results):
-        indx = np.argsort(results[j, :, 1])[::-1][0:1000]
+        indx = np.argsort(results[j, :, 1])[::-1][0:100]
         stuff_toprint = results[j, indx]
         stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > threshold]
         for i, row in enumerate(stuff_toprint):

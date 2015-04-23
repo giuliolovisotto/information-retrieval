@@ -1,0 +1,45 @@
+
+\title{Sistemi Informativi \\ Laboratorio 4}
+\author{
+        Catalin Copil
+            \and
+        Mattia de Stefani
+            \and
+        Giulio Lovisotto
+}
+\date{\today}
+
+\documentclass[12pt]{article}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{geometry}
+
+\addtolength{\topmargin}{-.5in}
+\begin{document}
+\maketitle
+
+\section{Descrizione}
+
+Visto che abbiamo scelto di usare BM25 per il ranking, applicheremo la formula tenendo in considerazione i giudizi di rilevanza. Per il relevance feedback esplicito utilizzeremo il file \texttt{qrels-originale.txt}. Ricordiamo che la formula di BM25 tieni gia' in considerazione i giudizi di rilevanza nella sua forma base. 
+\[ \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i}. \]
+Ricordiamo che $R$ e' il numero di documenti rilevanti per la query in questione, mentre $r_i$ e' il numero di documenti rilevanti che contiene il termine $i$.
+
+\subsection{Relevance Feedback Esplicito}
+Il reperimento avvera' in 2 step. Nel primo verra' eseguito il ranking senza informazioni di rilevanza, e tra i primi $N$ documenti verranno estratti quelli rilevanti usando il file \texttt{qrels-originale.txt}. Poi verranno estratti i valori $R$, $r_i$ tra i documenti rilevanti individuati e verranno usati per la seconda esecuzione dell'algoritmo.
+
+\subsection{Pseudo Relevance Feedback}
+Il reperimento avvera' in 2 step. Nel primo verra' eseguito il ranking senza informazioni di rilevanza, verranno considerati i primi $N$ documenti come rilevanti. Poi verranno estratti i valori $R$, $r_i$ tra i documenti rilevanti individuati e verranno usati per la seconda esecuzione dell'algoritmo.
+
+\section{Implementazione}
+Per il calcolo di $R$ ed $r_i$, utilizzeremo la matrice che contiene la frequenza di occorrenza delle parole per ogni documento (n\_docs $\times$ n\_words). Durante il reperimento, per ogni documento, per ogni termine $i$ andremo a prendere il numero di documenti rilevanti che contiene il termine $i$, e lo salveremo in una mappa $map$ (mappa $i \rightarrow r_i$). Useremo una funzione per il ranking che accetta in input i parametri $R$ e la mappa $map$ che mappa i termini $i$ sul numero di documenti rilevanti che contiene $i$, e calcola il punteggio usando tali informazioni.
+I documenti rilevanti sono calcolati come descritto nella precedente sezione.
+%Abbiamo scelto di usare l'algoritmo di ranking BM25 .
+%Tale algoritmo funziona nel modo seguente:
+%
+%\[ \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i} \]
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
