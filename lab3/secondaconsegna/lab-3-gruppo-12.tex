@@ -65,7 +65,7 @@ La funzione di reperimento scorrera' la lista di documenti (le righe della matri
 \Return top $k$ scoring documents
 \end{algorithmic}
 
-La complessita' di tale algoritmo e' $O(n \cdot m)$ dove $n$ e' il numero di documenti nella collezione $C$, e $m$ e' il numero di descrittori nell'interrogazione $Q$. Per i parametri abbiamo scelto: $k1=1.2$, $k2=1$, $b=0$, in quanto fornivano la migliore precisione nei risultati. Il termine $b$ a zero significa che non viene applicato alcuno $smoothing$ sulle frequenze rispetto alla lunghezza del documento, nel nostro caso cio' funziona perche' i documenti sono in genere molto corti.
+La complessita' di tale algoritmo e' $O(n \cdot m)$ dove $n$ e' il numero di documenti nella collezione $C$, e $m$ e' il numero di descrittori nell'interrogazione $Q$. Per i parametri abbiamo scelto: $k_1=0.01$, $k_2=1$, $b=0$, in quanto fornivano la migliore precisione nei risultati. Il termine $b$ a zero significa che non viene applicato alcuno $smoothing$ sulle frequenze rispetto alla lunghezza del documento, nel nostro caso cio' funziona perche' i documenti sono in genere molto corti. Il termine $k_1$ e' stato settato ad un valore molto basso in quanto essendo i documenti molto corti (per alcuni ci sono solo 2-3 parole), la componente di frequenza nella formula di BM25 aveva un peso troppo influente rispetto alle altre.
 
 \section{Risultati}
 Abbiamo valutato i risultati della nostra implementazione con l'utility \textit{trec\_eval} e abbiamo ottenuto i risultati riportati in figura.
@@ -73,13 +73,23 @@ Abbiamo valutato i risultati della nostra implementazione con l'utility \textit{
 \begin{center}
 \includegraphics[width=0.75\textwidth]{myresult.png}
 \caption{Risultati \textit{trec\_eval}}
-\label{default}
+\label{fig:fig1}
 \end{center}
 \end{figure}
 
 Si puo' vedere che la $map$ e' piuttosto bassa. Indagando sulle query abbiamo notato che alcune di esse contengono bisogni informativi legati agli autori (``I am interested in articles written either by Prieve or Udo PoochPrieve, B. Pooch, U.''), e nella nostra implementazione cio' non e' colto in quanto nei documenti indicizzati il campo autori e' ignorato (nei file non sono presenti gli stem degli autori). Inoltre non sempre gli stem presenti nei file forniti rappresentano sempre il bisogno informativo (``Interested in articles on robotics, motion planning particularly the geometric and combinatorial aspects. We are not interested in the dynamics of arm motion.'') in quanto il modello scelto non permette di esprimere condizioni booleane.
 
+\subsection{Lucene}
+Per confrontare i risultati abbiamo utilizzato il modulo \textsc{PyLucene} (python api per lucene). Abbiamo indicizzato i seguenti campi dei documenti: autore, abstract, titolo, prendendoli dal testo originale in xml. Figura 2 riporta i risultati ottenuti.
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.75\textwidth]{result2.png}
+\caption{Risultati \textit{trec\_eval} sull'output di lucene}
+\label{fig:fig2}
+\end{center}
+\end{figure}
 \bibliographystyle{abbrv}
 \bibliography{main}
 
+Come si puo' vedere la $map$ e' leggermente inferiore nonostante l'utilizzo del campo autori, che nella nostra implementazione non e' presente. Cio' e' dovuto alla funzione di ranking di lucene, che combina modello vettoriale e probabilistico ma non tiene conto della brevita' dei documenti della nostra collezione.
 \end{document}
