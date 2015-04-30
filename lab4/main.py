@@ -6,7 +6,7 @@ from joblib import cpu_count, Parallel, delayed
 
 
 def get_R(query_id):
-    a = np.loadtxt("data/qrels-treceval.txt", dtype='str')[:, 0].astype(int)
+    a = np.loadtxt("../data/qrels-treceval.txt", dtype='str')[:, 0].astype(int)
     R = np.count_nonzero(a == int(query_id))
     return R
 
@@ -18,7 +18,7 @@ def get_r_i_pseudo(mat_freq, rel_ids, query_term):
 
 
 def get_r_i(mat_freq, query_id, query_term):
-    a = np.loadtxt("data/qrels-treceval.txt", dtype='str')
+    a = np.loadtxt("../data/qrels-treceval.txt", dtype='str')
     b = a[:, 0].astype(int)
     a = a[b == int(query_id)]
     a = a[:, 2].astype(int)
@@ -29,6 +29,7 @@ def get_r_i(mat_freq, query_id, query_term):
 
 
 def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
+
     print pj
     actual_qw = []
     for qw in pqw:
@@ -46,7 +47,7 @@ def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
             tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
             tf2 = (k2 + 1)*1/(k2 + 1)
             score += idf * tf1 * tf2
-            res[pj, i, :] = np.array([i, score])
+        res[pj, i, :] = np.array([i, score])
 
     ranking = res[pj, :, :]
     R = 10
@@ -73,10 +74,12 @@ def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
             tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
             tf2 = (k2 + 1)*1/(k2 + 1)
             score += idf * tf1 * tf2
-            res[pj, i, :] = np.array([i, score])
+        res[pj, i, :] = np.array([i, score])
+
 
 
 def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
+    '''
     print pj
     actual_qw = []
     r_is = []
@@ -106,10 +109,43 @@ def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
             tf2 = (k2 + 1)*1/(k2 + 1)
             score += idf * tf1 * tf2
             res[pj, i, :] = np.array([i, score])
+    '''
+
+    print pj
+    actual_qw = []
+    indexes_of_qws = []
+    r_is = []
+    for qw in pqw:
+        if qw in pwords:
+            actual_qw.append(qw)
+            indexes_of_qws.append(pwords[qw])
+            r_is.append(get_r_i(fm, q_id, pwords[qw]))
+
+    indexes_of_qws = np.array(indexes_of_qws)
+    tmp = np.arange(0, fm.shape[1])
+    indexes_of_qws = np.in1d(tmp, indexes_of_qws)
+    red_fm = fm[:, indexes_of_qws]
+    idfs = np.ones(shape=(red_fm.shape[0], red_fm.shape[1]))
+    tmp2 = np.copy(red_fm)
+    tmp2[tmp2 != 0] = 1
+    nis = tmp2.sum(axis=0)
+    Ns = np.ones(red_fm.shape[1])*N
+    R = get_R(q_id)
+    Rs = np.ones(red_fm.shape[1])*R
+    r_is = np.array(r_is)
+    idfs = np.log((N - nis - R + r_is + 0.5)*(r_is + 0.5)/(nis - r_is + 0.5)*(R - r_is + 0.5))
+    Ks = k1*((1-b) + b*(dls/avdl))
+    tf1s = red_fm*(k1 + 1)/(np.tile(Ks, (red_fm.shape[1], 1)).T + red_fm)
+    tf2s = np.ones(red_fm.shape)
+    ress = np.multiply(idfs, tf1s)
+    # ress = np.multiply(ress, tf2s)
+    ress = ress.sum(axis=1)
+    idss = np.arange(0, red_fm.shape[0])
+    res[pj, :, :] = np.vstack((idss, ress)).T
 
 
 def indexing():
-    freq_docid_words = np.loadtxt("data/freq.docid.stem.txt", dtype='str')
+    freq_docid_words = np.loadtxt("../data/freq.docid.stem.txt", dtype='str')
 
     freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
 
@@ -121,7 +157,7 @@ def indexing():
     n_words = len(words)
     print "%s distinct words" % n_words
 
-    f = open('data/docid.only-keywords.txt')
+    f = open('../data/docid.only-keywords.txt')
 
     n_docs = len(f.readlines())
     print "%s documents" % n_docs
@@ -147,7 +183,7 @@ def indexing():
 def retrieve():
     freq_mat, docs_length, words = indexing()
 
-    query_stem = np.loadtxt("data/query-stem.txt", dtype='str', delimiter="\t ")
+    query_stem = np.loadtxt("../data/query-stem.txt", dtype='str', delimiter="\t ")
 
     queries = {}
     # print words
