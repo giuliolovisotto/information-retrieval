@@ -29,7 +29,68 @@ def get_r_i(mat_freq, query_id, query_term):
 
 
 def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
+    #print pj
+    actual_qw = []
+    indexes_of_qws = []
+    for qw in pqw:
+        if qw in pwords:
+            actual_qw.append(qw)
+            indexes_of_qws.append(pwords[qw])
 
+    indexes_of_qws = np.array(indexes_of_qws)
+    tmp = np.arange(0, fm.shape[1])
+    indexes_of_qws = np.in1d(tmp, indexes_of_qws)
+    red_fm = fm[:, indexes_of_qws]
+    idfs = np.ones(shape=(red_fm.shape[0], red_fm.shape[1]))
+    tmp2 = np.copy(red_fm)
+    tmp2[tmp2 != 0] = 1
+    nis = tmp2.sum(axis=0)
+    Ns = np.ones(red_fm.shape[1])*N
+    idfs = np.log((Ns - nis + 0.5)/(nis + 0.5))
+    Ks = k1*((1-b) + b*(dls/avdl))
+    tf1s = red_fm*(k1 + 1)/(np.tile(Ks, (red_fm.shape[1], 1)).T + red_fm)
+    tf2s = np.ones(red_fm.shape)
+    ress = np.multiply(idfs, tf1s)
+    ress = ress.sum(axis=1)
+    idss = np.arange(0, red_fm.shape[0])
+    res[pj, :, :] = np.vstack((idss, ress)).T
+
+    ranking = res[pj, :, :]
+    R = 10
+    indx = np.argsort(ranking[:, 1])[::-1][0:R]
+    relevants = ranking[indx, :]
+    rel_ids = relevants[:, 0].astype(int)
+    r_is = []
+    indexes_of_qws = []
+    for qw in actual_qw:
+        index_of_qw = pwords[qw]
+        indexes_of_qws.append(pwords[qw])
+        r_is.append(get_r_i_pseudo(fm, rel_ids, index_of_qw))
+
+    r_is = np.array(r_is)
+    indexes_of_qws = np.array(indexes_of_qws)
+
+    tmp = np.arange(0, fm.shape[1])
+    indexes_of_qws = np.in1d(tmp, indexes_of_qws)
+    red_fm = fm[:, indexes_of_qws]
+    idfs = np.ones(shape=(red_fm.shape[0], red_fm.shape[1]))
+    tmp2 = np.copy(red_fm)
+    tmp2[tmp2 != 0] = 1
+    nis = tmp2.sum(axis=0)
+    Ns = np.ones(red_fm.shape[1])*N
+    R = get_R(q_id)
+    Rs = np.ones(red_fm.shape[1])*R
+    r_is = np.array(r_is)
+    idfs = np.log((N - nis - R + r_is + 0.5)*(r_is + 0.5)/(nis - r_is + 0.5)*(R - r_is + 0.5))
+    Ks = k1*((1-b) + b*(dls/avdl))
+    tf1s = red_fm*(k1 + 1)/(np.tile(Ks, (red_fm.shape[1], 1)).T + red_fm)
+    tf2s = np.ones(red_fm.shape)
+    ress = np.multiply(idfs, tf1s)
+    # ress = np.multiply(ress, tf2s)
+    ress = ress.sum(axis=1)
+    idss = np.arange(0, red_fm.shape[0])
+    res[pj, :, :] = np.vstack((idss, ress)).T
+    '''
     print pj
     actual_qw = []
     for qw in pqw:
@@ -75,7 +136,7 @@ def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
             tf2 = (k2 + 1)*1/(k2 + 1)
             score += idf * tf1 * tf2
         res[pj, i, :] = np.array([i, score])
-
+    '''
 
 
 def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
@@ -110,7 +171,6 @@ def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
             score += idf * tf1 * tf2
             res[pj, i, :] = np.array([i, score])
     '''
-
     print pj
     actual_qw = []
     indexes_of_qws = []
@@ -203,12 +263,13 @@ def retrieve():
 
     results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
 
-    #for pj, (q, lst) in enumerate(queries.iteritems()):
-    #    p_pseudo(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N)
+    for pj, (q, lst) in enumerate(queries.iteritems()):
+        print q
+        p_pseudo(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N)
 
-    Parallel(n_jobs=cpu_count())(delayed(p_pseudo)(
-        freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
-    ) for pj, (q, lst) in enumerate(queries.iteritems()))
+    # Parallel(n_jobs=cpu_count())(delayed(p_pseudo)(
+    #    freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
+    # ) for pj, (q, lst) in enumerate(queries.iteritems()))
 
     # considera e retrieva solo i documenti con uno score almeno threshold
     # aumento threshold, diminuisce percentuale di documenti rilevanti retrieved
