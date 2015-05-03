@@ -1,0 +1,6 @@
+/write.lock
+/segments_1
+*.cfe
+/segments.gen
+/_0.si
+*.cfs
