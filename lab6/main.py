@@ -64,17 +64,14 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     # ress = [5.1, 6.3, 0.54, 1.2, ...]
     # non sono ordinati
 
-    alpha = 0.9
-
-    pageranks = np.loadtxt("pagerank.txt")[:, 1]
-
-    pageranks = (pageranks - pageranks.min()) / (pageranks.max() - pageranks.min())
-
-    ress = (ress - ress.min()) / (ress.max() - ress.min())
-
-    ress = alpha * ress + (1 - alpha) * pageranks
-
-    res[pj, :, :] = np.vstack((idss, ress)).T
+    # ora bisogna fare lsa
+    # bisogna
+    # 1. caricare la matrice con i tfidf (lab2),
+    # 2. ordinare i risultati e prendere i primi N=10,
+    # 3. arrivare alla versione ridotta togliendo le query words che non compaiono nei primi N risultati, e i documenti
+    #    che non sono tra i primi N
+    # 4. fare lsa (vedi stackoverflow)
+    # 5. riordinare questi N per la similarity ottenuta, e amen
 
 
 def indexing():
