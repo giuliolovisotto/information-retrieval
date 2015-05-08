@@ -1,0 +1,32 @@
+
+\title{Sistemi Informativi \\ Laboratorio 5}
+\author{
+        Catalin Copil
+            \and
+        Mattia de Stefani
+            \and
+        Giulio Lovisotto
+}
+\date{\today}
+
+\documentclass[12pt]{article}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{geometry}
+
+\addtolength{\topmargin}{-.5in}
+\begin{document}
+\maketitle
+
+\section{Descrizione}
+Utilizzeremo la funzione di ranking BM25 con relevance feedback esplicito (lab 5), e applicheremo LSA. Sceglieremo i primi $N$ documenti reperiti (proveremo vari valori di $N$ per trovare quello che garantisce il miglior risultato). Costuiremo la matrice di occorrenza ridotta $X$ di dimensione $(k \times N)$ dove $k$ e' il numero di descrittori trovati negli $N$ documenti. Useremo il metodo \texttt{linalg.svd} della libreria \texttt{numpy} per trovare la fattorizzazione :
+\[ X = U \Sigma V^{T}. \]
+Dopodiche', considereremo $m$ dimensioni (proveremo vari valori di $m$ a partire da 1 per trovare quello che garantisce il miglior risultato), e proietteremo l'interrogazione $\vec{q}$ sullo spazio a dimensione ridotta usando la formula:
+\[ \vec{q}_m = \Sigma^{-1} U^{T}_m \vec{q}, \]
+faremo lo stesso con i documenti computanto la matrice ridotta $X^{*} = U_m \Sigma_m V_m^{T}$.
+Poi computeremo la cosine similarity tra i documenti nello spazio ridotto e la query ridotta, e li riordineremo per cosine similarity descrescente. Il ranking degli altri documenti oltre agli $N$ non verra' modificato, ed essi verranno accodati.
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
