@@ -71,7 +71,7 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     ress = ress.sum(axis=1)
     idss = np.arange(0, red_fm.shape[0])
 
-    N = 20
+    N = 10
 
     idss_indx = np.argsort(ress)[::-1]
 
@@ -99,7 +99,7 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     occ_matrix = occ_matrix[:, indxs]
 
     u, s, vt = np.linalg.svd(occ_matrix.T, full_matrices=False)
-    m = 10
+    m = 2
     u[:, m:] = 0
     # u = u[:, :m]
     # sigma = np.diag(s)[:m, :m]
@@ -237,7 +237,7 @@ def retrieve():
         stuff_toprint = results[j, 0:1000]
         stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > threshold]
         for i, row in enumerate(stuff_toprint):
-            f.write("%s Q0 %s %s %s G12R9PR\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
+            f.write("%s Q0 %s %s %s G12R9LSA\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
     f.close()
 
 if __name__ == "__main__":
