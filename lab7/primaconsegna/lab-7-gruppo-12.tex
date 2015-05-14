@@ -1,0 +1,34 @@
+
+\title{Sistemi Informativi \\ Laboratorio 7}
+\author{
+        Catalin Copil
+            \and
+        Mattia de Stefani
+            \and
+        Giulio Lovisotto
+}
+\date{\today}
+
+\documentclass[12pt]{article}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{geometry}
+
+\addtolength{\topmargin}{-.5in}
+\begin{document}
+\maketitle
+
+\section{Descrizione}
+La nostra funzione di reperimento utilizzera' i primi $N$ documenti prodotti da BM25 per costruire il grafo delle citazioni $R_q$, tale grafo verra' espanso per ottenere un grafo allargato $B_q$, e su quest'ultimo verra' calcolato \textsc{hits}. La funzione combinera' poi gli score di BM25 ($sc$) con i punteggi di authority ($auth$) e hubbiness ($hub$) per i primi $N$ documenti, e li riordinera' per $hits_{score}$ decrescente:
+
+\[ hits_{score} =  \alpha \cdot sc + \beta \cdot auth + \gamma \cdot hub,\]
+
+$\alpha$ varia in [0, 1],  mentre $\beta, \gamma$ sono parametri che possono variare tra [-1, 1], in quanto vogliamo cogliere possibili influenze negative sul di tali valori. Nella precedente funzione i valori di $sc, auth, hub$ vengono normalizzati in [0, 1] prima del calcolo. 
+
+ Vogliamo provare diverse combinazioni di tali valori per ottenere la massima precisione.
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
