@@ -3,19 +3,26 @@ __author__ = 'giulio'
 import numpy as np
 import sys
 import networkx as nx
-# from joblib import cpu_count, Parallel, delayed
+
+def get_graph_N(root_nodes):
+    G = nx.read_edgelist("../data/citation_n.txt", delimiter=" ", create_using=nx.DiGraph())
+    R = map(str, root_nodes)
+    E = []
+
+    for n in R:
+        for source, dest in G.in_edges(n):
+            E.append(source)
+        for source, dest in G.out_edges(n):
+            E.append(dest)
+
+    E = map(str, list(np.unique(E)))
+    B = set(R + E)
+    N = set(G.nodes())
+    to_remove = N - B
+    G.remove_nodes_from(to_remove)
+    return G
 
 
-def pagerank(edgefile):
-    G = nx.read_edgelist("../data/citation.txt", delimiter="\t", create_using=nx.DiGraph())
-    G.remove_edges_from(G.selfloop_edges())
-    myalpha = .85
-    pranks = nx.pagerank(G, alpha=myalpha)
-    mat = np.zeros(shape=(len(pranks.keys()), 2))
-    for k, v in pranks.iteritems():
-        mat[int(k)-1, 0] = int(k)-1
-        mat[int(k)-1, 1] = v
-    np.savetxt("pagerank.txt", mat, fmt="%d %.16f")
 
 
 def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
@@ -60,20 +67,58 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     ress = ress.sum(axis=1)
     idss = np.arange(0, red_fm.shape[0])
 
-    # ok ora a partire da qui, in ress ci sono i punteggi di bm25 e in idss gli ids per esempio
-    # idss = [0, 1, 2, 3, 4, ....]
-    # ress = [5.1, 6.3, 0.54, 1.2, ...]
-    # non sono ordinati
+    N = 50
 
-    alpha = 0.9
+    idss_indx = np.argsort(ress)[::-1]
 
-    pageranks = np.loadtxt("pagerank.txt")[:, 1]
+    idss = idss[idss_indx]
+    ress = ress[idss_indx]
 
-    pageranks = (pageranks - pageranks.min()) / (pageranks.max() - pageranks.min())
+    idss_N = idss[0:N]
+    ress_N = ress[0:N]
 
-    ress = (ress - ress.min()) / (ress.max() - ress.min())
+    G = get_graph_N(idss_N)
 
-    ress = alpha * ress + (1 - alpha) * pageranks
+    try:
+        auths, hubs = nx.hits(G)
+    except nx.exception.NetworkXError, e:
+        auths = {str(nid): 1.0 for nid in idss_N}
+        hubs = {str(nid): 1.0 for nid in idss_N}
+        print "HITS failed to converge"
+
+    tmp_keys = auths.keys()
+    for k in tmp_keys:
+        if int(k) not in idss_N:
+            auths.pop(k)
+            hubs.pop(k)
+
+    max_a, min_a = max(auths.values()), min(auths.values())
+    max_h, min_h = max(hubs.values()), min(hubs.values())
+    max_s, min_s = max(ress_N), min(ress_N)
+
+    # normalizziamo
+    for k, v in auths.iteritems():
+        auths[k] = (auths[k]-min_a)/((max_a-min_a) if (max_a-min_a) > 0 else 1.0)
+        hubs[k] = (hubs[k]-min_h)/((max_h-min_h) if (max_h-min_h) > 0 else 1.0)
+
+    ress_N_tmp = (ress_N-min_s)/(max_s-min_s)
+    ress_dict = {}
+    for i, ind in enumerate(idss_N):
+        ress_dict[str(ind)] = ress_N_tmp[i]
+
+    alpha, beta, gamma = 1, -0.1, -0.1
+
+    hits_scores = dict()
+
+    for k, v in auths.iteritems():
+        hits_scores[k] = alpha*ress_dict[k] + beta * auths[k] + gamma * hubs[k]
+
+    keys, values = np.array(hits_scores.keys()), np.array(hits_scores.values())
+
+    indices = np.argsort(np.array(values))[::-1]
+    keys = keys[indices].astype(int)
+
+    idss[0:N] = keys
 
     res[pj, :, :] = np.vstack((idss, ress)).T
 
@@ -160,7 +205,7 @@ def retrieve():
 
     # parametri per bm25
     N = freq_mat.shape[0]
-    k1 = 0.01
+    k1 = 0.02
     k2 = 1.2
     b = 0.0
     avdl = np.mean(docs_length)
@@ -179,11 +224,11 @@ def retrieve():
 
     f = open('results.txt', 'w')
     for j, query in enumerate(results):
-        indx = np.argsort(results[j, :, 1])[::-1][0:1000]
-        stuff_toprint = results[j, indx]
+        # indx = np.argsort(results[j, :, 1])[::-1][0:1000]
+        stuff_toprint = results[j, 0:1000]
         stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > threshold]
         for i, row in enumerate(stuff_toprint):
-            f.write("%s Q0 %s %s %s G12R9PR\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
+            f.write("%s Q0 %s %s %s G12R9HITS\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
     f.close()
 
 if __name__ == "__main__":
