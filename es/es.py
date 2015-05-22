@@ -10,21 +10,21 @@ init_f = 1.0
 ps = 10
 lambda_v = 35
 
-lb = np.array([0.00001, 0.0])
+lb = np.array([1e-8, 1e-8])
 ub = np.array([2.0, 1.0])
 
 N = 2
 
-start = np.array([0.02444717, 0.02156461])
+start = np.array([1.2, 0.75])
 
 X = np.tile(start, (ps, 1))
 
-S = np.tile(np.array([init_f*10, init_f]), (10, 1)) * (X/np.sqrt(N))
+S = np.tile(np.array([init_f, init_f]), (10, 1)) * (X/np.sqrt(N))
 
 tau = 1/np.sqrt(2 * N)
 tau2 = 1/np.sqrt(2 * np.sqrt(N))
 
-fit = np.ones(shape=(ps, 1)) * 32.86
+fit = np.ones(shape=(ps, 1)) * 30.00
 
 def discrete_recombination(pop, l):
     r_pop = np.zeros((l, pop.shape[1]))
