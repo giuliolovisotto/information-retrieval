@@ -82,3 +82,8 @@ target/
 *.mtc1
 *.out
 *.synctex.gz
+es/words_dict.txt
+es/terms_mat.mtx
+es/tmp
+es/terms_mat.txt
+es/tmp2
