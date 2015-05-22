@@ -256,7 +256,7 @@ def retrieve():
             queries[q_id].append(w)
     #print queries
     N = freq_mat.shape[0]
-    k1 = 0.01
+    k1 = 0.02
     k2 = 1.2
     b = 0.0  # lascio basso perche normalizzare sulla lunghezza e' un po inutile nel nostro caso (abbiamo solo le kw)
     avdl = np.mean(docs_length)
@@ -265,7 +265,7 @@ def retrieve():
 
     for pj, (q, lst) in enumerate(queries.iteritems()):
         print q
-        p_pseudo(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N)
+        p_esplicito(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N)
 
     # Parallel(n_jobs=cpu_count())(delayed(p_pseudo)(
     #    freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
