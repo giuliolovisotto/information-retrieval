@@ -10,13 +10,19 @@ sys.path.append("./../")
 
 from utils.utils import indexing
 
+_python_int = "python2"
+
 init_f = 1.0
 ps = 10
 lambda_v = 35
 
-# best for now
-# [0.02533949  0.02218594]
+# best for now (lab3)
+# [0.02533949  0.02218594] k1, b
 # 0.3354
+
+# best for now (lab5)
+# [2.36851802e-02   1.00000000e-08   7.83202800e-01]
+# 0.3366
 
 lb = np.array([1e-8, 1e-8, 0.0])
 ub = np.array([2.0, 1.0, 1.0])
@@ -53,20 +59,21 @@ def n_mutation(pop, sigmas, tau, tau2, lb, ub):
     return m_pop, m_sigm
 
 def single_eval(x, ind, out, j):
-    call(["python", "../lab5/main.py", str(x[0]), str(x[1]), '1.0', str(x[2])])
+    call([_python_int, "../lab5/main.py", str(x[0]), str(x[1]), '1.0', str(x[2])])
     out[j] = evaluate_map("results.txt")
 
 
 def evaluate(pop):
     # fitnesses = np.zeros(shape=(pop.shape[0]), dtype='float')
     fitnesses = np.memmap("tmp2", shape=(pop.shape[0]), dtype='float', mode='w+')
-    n_j = cpu_count()
+    n_j = 4
 
     for ii, x in enumerate(pop):
         sys.stdout.write("\r%s/%s" % (ii+1, pop.shape[0]))
+        sys.stdout.flush()
         single_eval(x, str(ii % n_j), fitnesses, ii)
 
-    # Parallel(n_jobs=n_j)(delayed(single_eval)(x, str(ii % n_j), fitnesses, ii) for ii, x in enumerate(pop))
+    # Parallel(n_jobs=n_j)(delayed(single_eval)(x, ii, fitnesses, ii) for ii, x in enumerate(pop))
 
     return fitnesses
 
