@@ -3,6 +3,13 @@ __author__ = 'giulio'
 import numpy as np
 import sys
 import networkx as nx
+import os
+from scipy import sparse, io
+import json
+
+sys.path.append("./../")
+
+from utils.utils import indexing
 # from joblib import cpu_count, Parallel, delayed
 
 
@@ -139,52 +146,48 @@ def indexing():
     3. il dizionario di parole
     :return:
     """
-    # carica il file di stem in una matrice
-    freq_docid_words = np.loadtxt("../data/freq.docid.stem.txt", dtype='str')
 
-    # prende gli id e ci sottrae 1 cosi iniziano da zero
-    freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
+    if not os.path.isfile("terms_mat.mtx"):
+        freq_docid_words = np.loadtxt("../data/freq.docid.stem.txt", dtype='str')
 
-    # ritorna le parole uniche nel file di stem (rimuove i duplicati)
-    words = np.unique(freq_docid_words[:,2])
-    words_dict = {}
-    for i, w in enumerate(words):
-        # mettiamo nel nostro dizionario le parole e un indice che poi verra usato sulle colonne della matrice di freq,
-        # la prima parola prendera' indice 0, la seconda 1, la terza 2 etc
-        words_dict[w] = i
+        freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
 
-    n_words = len(words)
-    print "%s distinct words" % n_words
+        words = np.unique(freq_docid_words[:,2])
+        words_dict = {}
+        for i, w in enumerate(words):
+            words_dict[w] = i
 
-    f = open('../data/docid.only-keywords.txt')
-    # prendiamo il numero di documenti qui
-    n_docs = len(f.readlines())
-    print "%s documents" % n_docs
+        n_words = len(words)
 
-    f.close()
+        f = open('../data/docid.only-keywords.txt')
 
-    # inizializzamo la matrice
-    terms_mat = np.zeros(shape=(n_docs, n_words))
+        n_docs = len(f.readlines())
 
-    # per ogni riga del file di stem, riempiamo le celle della matrice corrispondenti
-    for r in freq_docid_words:
-        freq, doc_id, word = int(r[0]), int(r[1]), r[2]
-        # questo trova l'indice della parola nel nostro array di parole words
-        # se word='algebra' si trova in posizione 5 dell'array di words, ritorna 5
-        word_index = np.where(words == word)[0]
-        # mettiamo in riga doc_id, colonna word_index (5 nell esempio qui sopra) l'occorrenza
-        terms_mat[doc_id, word_index] = freq
+        f.close()
 
-    terms_mat = terms_mat.astype(float)
+        terms_mat = np.zeros(shape=(n_docs, n_words))
 
-    # queste sono le lunghezze dei doc
-    docs_length = terms_mat.sum(axis=1)
+        for r in freq_docid_words:
+            freq, doc_id, word = int(r[0]), int(r[1]), r[2]
+            word_index = np.where(words==word)[0]
+            terms_mat[doc_id, word_index] = freq
 
-    # questa e' la matrice colle frequenze (dividiamo ogni colonna per la somma della colonna)
-    # se un documento aveva la colonna [2, 4, 6,] ora e' diventata [1/6, 1/3, 1/2] (sono probabilita)
-    terms_mat /= terms_mat.sum(axis=1)[:, None]
+        terms_mat = terms_mat.astype(float)
 
-    # ritorna le 3 robe
+        docs_length = terms_mat.sum(axis=1)
+
+        terms_mat /= terms_mat.sum(axis=1)[:, None]
+
+        terms_mat = sparse.csr_matrix(terms_mat)
+        io.mmwrite("terms_mat.mtx", terms_mat)
+        np.savetxt("docs_length.txt", docs_length)
+        json.dump(words_dict, open("words_dict.txt", 'w'))
+
+    else:
+        terms_mat = np.array(io.mmread("terms_mat.mtx").todense())
+        docs_length = np.loadtxt("docs_length.txt")
+        words_dict = json.load(open("words_dict.txt"))
+
     return terms_mat, docs_length, words_dict
 
 

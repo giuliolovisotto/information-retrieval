@@ -3,22 +3,27 @@ __author__ = 'giulio'
 import numpy as np
 import sys
 import networkx as nx
+
+sys.path.append("./../")
+
+from utils.utils import indexing
 # from joblib import cpu_count, Parallel, delayed
 
+sys.path.append("./../")
 
 def pagerank(edgefile):
-    G = nx.read_edgelist("../data/citation.txt", delimiter="\t", create_using=nx.DiGraph())
+    G = nx.read_edgelist("../data/citation_n.txt", create_using=nx.DiGraph())
     G.remove_edges_from(G.selfloop_edges())
     myalpha = .85
     pranks = nx.pagerank(G, alpha=myalpha)
     mat = np.zeros(shape=(len(pranks.keys()), 2))
     for k, v in pranks.iteritems():
-        mat[int(k)-1, 0] = int(k)-1
-        mat[int(k)-1, 1] = v
+        mat[int(k), 0] = int(k)
+        mat[int(k), 1] = v
     np.savetxt("pagerank.txt", mat, fmt="%d %.16f")
 
 
-def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
+def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, alpha):
     """
     Fa il retrieve per la singola query
     :param fm: frequency matrix
@@ -65,9 +70,9 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     # ress = [5.1, 6.3, 0.54, 1.2, ...]
     # non sono ordinati
 
-    alpha = 0.9
+    # alpha = 0.9
 
-    pageranks = np.loadtxt("pagerank.txt")[:, 1]
+    pageranks = np.loadtxt("../lab5/pagerank.txt")[:, 1]
 
     pageranks = (pageranks - pageranks.min()) / (pageranks.max() - pageranks.min())
 
@@ -75,67 +80,14 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
 
     ress = alpha * ress + (1 - alpha) * pageranks
 
+    idss_indx = np.argsort(ress)[::-1]
+
+    idss = idss[idss_indx]
+    ress = ress[idss_indx]
     res[pj, :, :] = np.vstack((idss, ress)).T
 
 
-def indexing():
-    """
-    Prende il file di stem, e ritorna:
-    1. matrice delle occorrenze
-    2. array che contiene le lunghezze dei docs
-    3. il dizionario di parole
-    :return:
-    """
-    # carica il file di stem in una matrice
-    freq_docid_words = np.loadtxt("../data/freq.docid.stem.txt", dtype='str')
-
-    # prende gli id e ci sottrae 1 cosi iniziano da zero
-    freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
-
-    # ritorna le parole uniche nel file di stem (rimuove i duplicati)
-    words = np.unique(freq_docid_words[:,2])
-    words_dict = {}
-    for i, w in enumerate(words):
-        # mettiamo nel nostro dizionario le parole e un indice che poi verra usato sulle colonne della matrice di freq,
-        # la prima parola prendera' indice 0, la seconda 1, la terza 2 etc
-        words_dict[w] = i
-
-    n_words = len(words)
-    print "%s distinct words" % n_words
-
-    f = open('../data/docid.only-keywords.txt')
-    # prendiamo il numero di documenti qui
-    n_docs = len(f.readlines())
-    print "%s documents" % n_docs
-
-    f.close()
-
-    # inizializzamo la matrice
-    terms_mat = np.zeros(shape=(n_docs, n_words))
-
-    # per ogni riga del file di stem, riempiamo le celle della matrice corrispondenti
-    for r in freq_docid_words:
-        freq, doc_id, word = int(r[0]), int(r[1]), r[2]
-        # questo trova l'indice della parola nel nostro array di parole words
-        # se word='algebra' si trova in posizione 5 dell'array di words, ritorna 5
-        word_index = np.where(words == word)[0]
-        # mettiamo in riga doc_id, colonna word_index (5 nell esempio qui sopra) l'occorrenza
-        terms_mat[doc_id, word_index] = freq
-
-    terms_mat = terms_mat.astype(float)
-
-    # queste sono le lunghezze dei doc
-    docs_length = terms_mat.sum(axis=1)
-
-    # questa e' la matrice colle frequenze (dividiamo ogni colonna per la somma della colonna)
-    # se un documento aveva la colonna [2, 4, 6,] ora e' diventata [1/6, 1/3, 1/2] (sono probabilita)
-    terms_mat /= terms_mat.sum(axis=1)[:, None]
-
-    # ritorna le 3 robe
-    return terms_mat, docs_length, words_dict
-
-
-def retrieve():
+def retrieve(k1, b, k2, alpha):
     """
     Questo fa tutto il lavoro di retrieval e salva il file results.txt
     :return:
@@ -160,9 +112,6 @@ def retrieve():
 
     # parametri per bm25
     N = freq_mat.shape[0]
-    k1 = 0.01
-    k2 = 1.2
-    b = 0.0
     avdl = np.mean(docs_length)
 
     # salvo i risultati in questa matrice
@@ -170,8 +119,7 @@ def retrieve():
 
     # per ogni query, chiamo p_original che fa il retrieval
     for pj, (q, lst) in enumerate(queries.iteritems()):
-        print q
-        p_original(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N)
+        p_original(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N, alpha)
 
     # considera e retrieva solo i documenti con uno score almeno threshold
     # aumento threshold, diminuisce percentuale di documenti rilevanti retrieved
@@ -179,8 +127,7 @@ def retrieve():
 
     f = open('results.txt', 'w')
     for j, query in enumerate(results):
-        indx = np.argsort(results[j, :, 1])[::-1][0:1000]
-        stuff_toprint = results[j, indx]
+        stuff_toprint = results[j, 0:1000]
         stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > threshold]
         for i, row in enumerate(stuff_toprint):
             f.write("%s Q0 %s %s %s G12R9PR\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
@@ -188,4 +135,8 @@ def retrieve():
 
 if __name__ == "__main__":
     # invoca retrieve
-    retrieve()
+    k1 = float(sys.argv[1])
+    b = float(sys.argv[2])
+    k2 = float(sys.argv[3])
+    alpha = float(sys.argv[4])
+    retrieve(k1, b, k2, alpha)

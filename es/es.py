@@ -6,20 +6,28 @@ from get_map import evaluate_map
 from joblib import Parallel, cpu_count, delayed
 import sys
 
+sys.path.append("./../")
+
+from utils.utils import indexing
+
 init_f = 1.0
 ps = 10
 lambda_v = 35
 
-lb = np.array([1e-8, 1e-8])
-ub = np.array([2.0, 1.0])
+# best for now
+# [0.02533949  0.02218594]
+# 0.3354
 
-N = 2
+lb = np.array([1e-8, 1e-8, 0.0])
+ub = np.array([2.0, 1.0, 1.0])
 
-start = np.array([1.2, 0.75])
+N = 3
+
+start = np.array([1.2, 0.75, 0.5])
 
 X = np.tile(start, (ps, 1))
 
-S = np.tile(np.array([init_f, init_f]), (10, 1)) * (X/np.sqrt(N))
+S = np.tile(np.array([init_f, init_f, init_f]), (10, 1)) * (X/np.sqrt(N))
 
 tau = 1/np.sqrt(2 * N)
 tau2 = 1/np.sqrt(2 * np.sqrt(N))
@@ -45,7 +53,7 @@ def n_mutation(pop, sigmas, tau, tau2, lb, ub):
     return m_pop, m_sigm
 
 def single_eval(x, ind, out, j):
-    call(["python", "main.py", str(x[0]), str(x[1])])
+    call(["python", "../lab5/main.py", str(x[0]), str(x[1]), '1.0', str(x[2])])
     out[j] = evaluate_map("results.txt")
 
 
