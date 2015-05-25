@@ -1,4 +1,4 @@
-+% QUESTO E' IL MODELLO DI DOCUMENTO FINALE DA PRESENTARE ALLA PROVA D'ESAME DI
+% QUESTO E' IL MODELLO DI DOCUMENTO FINALE DA PRESENTARE ALLA PROVA D'ESAME DI
 % "SISTEMI INFORMATIVI" A.A. 2014/2015. E' BASATO SUL MODELLO ADOTTATO DA
 % SPRINGER PER GLI ATTI DELLE PROPRIE CONFERENZE, COME SPIEGATO NEL SEGUITO. 
 
@@ -24,9 +24,10 @@
 
 \maketitle
 \begin{abstract}
-	Questo documento illustra il perscorso effettuato per arrivare ad ottenere una buona conoscenza del ramo dell'Information Retrieval.
-	Partendo dalle conoscenze di base ad ogni esercitazione è stato aggiunto un tassello, il quale non è altro che un'attributo in più da considerare per il calcolo della precisione dei file ritenuti da noi importanti.
-	All'interno del documento saranno spiegati i diversi progetti effettuati. Come siamo passati da un'indicizzazione manuale ad una automatica (laboratorio 2), l'algoritmo di reperimento implementato per effettuare il ranking dei documenti presenti nella collezione per ogni richiesta, query (laboratorio 3). L'introduzione dei giudizi di rilevanza e la loro influenza sul risultato elaborato dall'algoritmo di reperimento scelto (laboratorio 4). Il calcolo effettuato del pagerank di ogni documento e come quest'ultimo in fluisca sul ranking (laboratorio 5). L'analisi della relazione tra una collezione di documenti e i termini contenuti in essi tramite l'utilizzo della tecnica \textbf{LSA} (laboratorio 6 ). Concludento con l'introduzione e lo studio di \textbf{HITS} (Hyperlink-Induced Topic Search): algoritmo di analisi dei link (laboratorio 7).  
+Lo scriviamo alla fine.
+%Questo documento illustra il perscorso effettuato per arrivare ad ottenere una buona conoscenza del ramo dell'Information Retrieval.
+%Partendo dalle conoscenze di base ad ogni esercitazione è stato aggiunto un tassello, il quale non è altro che un'attributo in più da considerare per il calcolo della precisione dei file ritenuti da noi importanti.
+%All'interno del documento saranno spiegati i diversi progetti effettuati. Come siamo passati da un'indicizzazione manuale ad una automatica (laboratorio 2), l'algoritmo di reperimento implementato per effettuare il ranking dei documenti presenti nella collezione per ogni richiesta, query (laboratorio 3). L'introduzione dei giudizi di rilevanza e la loro influenza sul risultato elaborato dall'algoritmo di reperimento scelto (laboratorio 4). Il calcolo effettuato del pagerank di ogni documento e come quest'ultimo in fluisca sul ranking (laboratorio 5). L'analisi della relazione tra una collezione di documenti e i termini contenuti in essi tramite l'utilizzo della tecnica \textbf{LSA} (laboratorio 6 ). Concludento con l'introduzione e lo studio di \textbf{HITS} (Hyperlink-Induced Topic Search): algoritmo di analisi dei link (laboratorio 7).  
 	
 	
 \end{abstract}
@@ -34,37 +35,47 @@
 \section{Introduzione}
 \label{sec:introduzione}
 
-Quando si scrive l'introduzione, si deve tenere presente che il lettore atteso
-sar\`a a conoscenza degli elementi di base. Si dovranno quindi introdurre i
-concetti non normalmente trattati in un corso di base in Information Retrieval e
-che sono invece utilizzati nel proprio documento.
+Che collezione usiamo (http://ir.dcs.gla.ac.uk/resources/test\_collections/cacm/). No stop words, no stemming (gia fatto). 
+Abbiamo a disposiz il grafo delle citazioni quindi useremo Pagerank e Hits (link analysis), spiegare brevemente cosa sono questi. Spiegare LSA. Spiegare ES. Related works?
+\subsection{Organizzazione}
+In sezione .. spiegeremo .., in sezione .. spiegheremo .. etc.
 
-Il resto del documento sar\`a scritto con i criteri seguenti:
-\begin{itemize}
-\item esaustivit\`a
-\item precisione
-\item chiarezza
-\item correttezza
-\item sintesi
-\end{itemize}
+%Quando si scrive l'introduzione, si deve tenere presente che il lettore atteso
+%sar\`a a conoscenza degli elementi di base. Si dovranno quindi introdurre i
+%concetti non normalmente trattati in un corso di base in Information Retrieval e
+%che sono invece utilizzati nel proprio documento.
+%
+%Il resto del documento sar\`a scritto con i criteri seguenti:
+%\begin{itemize}
+%\item esaustivit\`a
+%\item precisione
+%\item chiarezza
+%\item correttezza
+%\item sintesi
+%\end{itemize}
 
 \section{Metodologia}
 \label{sec:metodologia}
 
-In questo paragrafo, si illustreranno i metodi sviluppati e sperimentati con le
-attivit\`a di laboratorio. Le notazioni e tutti gli aspetti non banali dovranno
-essere spiegati. Naturalmente, la notazione di un paragrafo non dovr\`a essere
-reintrodotta nei paragrafi successivi, di conseguenza, la notazione non dovr\`a
-essere ambigua.
+Spiegare notazione grafo, parametri, usiamo 1 simbolo per indicare gli score. Quando scriviamo una sezione qui sotto 2.x, se ci serve della notazione poi andiamo a metterla qui. 
+Fare dei paragrafi per BM25, PageRank, Hits, LSA, ES.
+
+%In questo paragrafo, si illustreranno i metodi sviluppati e sperimentati con le
+%attivit\`a di laboratorio. Le notazioni e tutti gli aspetti non banali dovranno
+%essere spiegati. Naturalmente, la notazione di un paragrafo non dovr\`a essere
+%reintrodotta nei paragrafi successivi, di conseguenza, la notazione non dovr\`a
+%essere ambigua.
 
 \subsection{Approccio}
 \label{sec:approccio}
 
-Abbiamo deciso di utilizzare un approccio probabilistico poichè documentandoci siamo arrivati alla conclusione che quello vettoriale è ormai superato, e vi sono diverse implementazioni di modelli probabilistici (attualmente studiati) per diversi software le cui prestazioni sono elevate e ottimali.
-Inoltre per via delle nostre conoscenze abbiamo voluto utilizzare il linguaggio Python per dare corpo ai progetti. Esso ha un ottimo utilizzo di vettori, matrici e dizionari ottimali per i nostri scopi, al contrario di altri linguaggi molto spesso ci permette di scrivere in una riga metodi o passaggi che altrimenti avrebbero preso più spazio. Inoltre vi sono diverse librerie che implementano molti metodi utili per tale corso e per garantire buone performance al codice, così da rendere l'esecuzione veloce e snella e avere un tempo di elaborazione piccolo quindi poter permettere a noi utenti diverse prove fino al raggiungimento del risultato ottimale ricercato.
-Per ogni esercitazioni è stato utilizzato un approccio di gruoppo, cioè dataci le direttive del lavoro da svolgere ogni membro del gruppo rispolverava la teoria e pensava a come rispondere correttamente alla consegna. Al termine di questo primo step vi era la fase di scambo delle opinioni e conoscenze arrivando così a come doveva essere fatto il lavoro finale. Al dato giorno e ora ogni membro si trovava per la scrittura del codice e del report dell'esercitazione.
-Ci siamo sempre documentati prima di scrivere il codice cercando di utilizzare metodi presenti in librerie opportune così da avere permonca ottimali e poter effettuare più prove. Ogni metodo utilizzato è stato dapprima studiato per capirne il funzionamento e l'utilizzo per non avere dati rappresentati in una forma a noi non utile e non avere dati in più, che sarebbe stata solo memoria sprecata. 
-Diverse volte, invece, abbiamo scritto noi l'intera funzione per il calcolo di una particolare "cosa", ad esempio nel laboratorio  abbiamo deciso di implementare il metodo \textbg{BM25} (spiegato successivamente), studiata la teoria e le formule da applicare abbiamo scritto l'algoritmo che segue passo a passo il metodo citato ed effettuato diversi test per verificarne il corretto funzionamento.
+Vogliamo max la map. Usando treceval spiegare cos'e'. Spiegare brevemente il lavoro, molto veloce dire che abbiamo lavorato insieme dopo la prima sessione in lab. Usato python, con numpy per matrici, matplotlib per plottare, networkx per grafi, git per versionamento, latex per i report.
+
+%Abbiamo deciso di utilizzare un approccio probabilistico poichè documentandoci siamo arrivati alla conclusione che quello vettoriale è ormai superato, e vi sono diverse implementazioni di modelli probabilistici (attualmente studiati) per diversi software le cui prestazioni sono elevate e ottimali.
+%Inoltre per via delle nostre conoscenze abbiamo voluto utilizzare il linguaggio Python per dare corpo ai progetti. Esso ha un ottimo utilizzo di vettori, matrici e dizionari ottimali per i nostri scopi, al contrario di altri linguaggi molto spesso ci permette di scrivere in una riga metodi o passaggi che altrimenti avrebbero preso più spazio. Inoltre vi sono diverse librerie che implementano molti metodi utili per tale corso e per garantire buone performance al codice, così da rendere l'esecuzione veloce e snella e avere un tempo di elaborazione piccolo quindi poter permettere a noi utenti diverse prove fino al raggiungimento del risultato ottimale ricercato.
+%Per ogni esercitazioni è stato utilizzato un approccio di gruoppo, cioè dataci le direttive del lavoro da svolgere ogni membro del gruppo rispolverava la teoria e pensava a come rispondere correttamente alla consegna. Al termine di questo primo step vi era la fase di scambo delle opinioni e conoscenze arrivando così a come doveva essere fatto il lavoro finale. Al dato giorno e ora ogni membro si trovava per la scrittura del codice e del report dell'esercitazione.
+%Ci siamo sempre documentati prima di scrivere il codice cercando di utilizzare metodi presenti in librerie opportune così da avere permonca ottimali e poter effettuare più prove. Ogni metodo utilizzato è stato dapprima studiato per capirne il funzionamento e l'utilizzo per non avere dati rappresentati in una forma a noi non utile e non avere dati in più, che sarebbe stata solo memoria sprecata. 
+%Diverse volte, invece, abbiamo scritto noi l'intera funzione per il calcolo di una particolare "cosa", ad esempio nel laboratorio  abbiamo deciso di implementare il metodo \textsc{bm25} (spiegato successivamente), studiata la teoria e le formule da applicare abbiamo scritto l'algoritmo che segue passo a passo il metodo citato ed effettuato diversi test per verificarne il corretto funzionamento.
 
 \subsection{Indicizzazione} \label{sec:metodi-di-indic}
 
@@ -95,11 +106,10 @@ Qui va il contenuto del laboratorio n. 6.
 
 Qui va il contenuto del laboratorio n. 7.
 
-\subsection{Ottimizzazione}
-\label{sec:hits}
+\subsection{Evolution Strategy}
+\label{sec:es}
 
-Qui va il contenuto del laboratorio n. 8 (solo per chi ha in programma questo
-laboratorio). 
+L'ottimizzazione intelligente.
 
 \subsection{Altri metodi}
 \label{sec:altri-metodi}
@@ -109,29 +119,51 @@ Se sono stati sviluppati altri metodi, descriverli qui.
 \section{Risultati sperimentali}
 \label{sec:risult-sper}
 
-Questo paragrafo presenta e discute i risultati sperimentali. Si dovranno
-scegliere tre \textit{run} al massimo per ciascuno dei metodi illustrati nei
-paragrafi \ref{sec:metodi-di-reper}, \ref{sec:relevance-feedback},
-\ref{sec:pagerank}, \ref{sec:lsa} e \ref{sec:hits}.  
+Per 2.3 facciamo 2 plot uno al variare di k uno al variare di b.
 
-Si dovranno confrontare le misure di efficacia (ad esempio, \textit{Mean Average
-  Precision}, MAP) mediante illustrazioni anche grafiche. Un'analisi della
-significativit\`a statistica delle differenze tra i valori di MAP sarebbe
-opportuna.
+Per 2.4 farei un istogramma con le 3 map (no rf, rf esplicito, rf pseudo) e forse uno al variare di $N$ nello pseudo.
 
-Un confronto particolare dovr\`a essere fatto tra la \textit{baseline} del
-paragrafo \ref{sec:metodi-di-reper} e i metodi dei paragrafi successivi.
+Per 2.5 solito pagerank a variare del nostro alpha.
 
-La parte preziosa di questo paragrafo \`e la discussione dei risultati. Si
-dovr\`a dare un'interpretazione ragionata, chiara ed esaustiva delle ipotesi per
-cui sono state osservate o meno le differenze tra i valori di MAP. 
+Per 2.6 al variare di $N$.
+
+Per 2.7 al variare di $N$?
+
+Per 2.8 plot3d.
+
+NDCG?
+
+Un istogramma che mostra le map con iparametri ottimali per i vari metodi. Discussione su questi.
+
+Efficienza?
+
+%Questo paragrafo presenta e discute i risultati sperimentali. Si dovranno
+%scegliere tre \textit{run} al massimo per ciascuno dei metodi illustrati nei
+%paragrafi \ref{sec:metodi-di-reper}, \ref{sec:relevance-feedback},
+%\ref{sec:pagerank}, \ref{sec:lsa} e \ref{sec:hits}.  
+%
+%Si dovranno confrontare le misure di efficacia (ad esempio, \textit{Mean Average
+%  Precision}, MAP) mediante illustrazioni anche grafiche. Un'analisi della
+%significativit\`a statistica delle differenze tra i valori di MAP sarebbe
+%opportuna.
+%
+%Un confronto particolare dovr\`a essere fatto tra la \textit{baseline} del
+%paragrafo \ref{sec:metodi-di-reper} e i metodi dei paragrafi successivi.
+%
+%La parte preziosa di questo paragrafo \`e la discussione dei risultati. Si
+%dovr\`a dare un'interpretazione ragionata, chiara ed esaustiva delle ipotesi per
+%cui sono state osservate o meno le differenze tra i valori di MAP. 
 
 \section{Conclusioni}
 \label{sec:conclusioni}
 
-In questo paragrafo si possono aggiungere delle osservazioni di carattere
-generale sugli esperimenti; ad esempio, si pu\`o concludere se un proprio metodo
-di reperimento o una variazione dei metodi pi\`u avanzati hanno portato a
-qualche miglioramento rispetto alla \textit{baseline}.
+Questa collezione fa schifo. Meta delle query chiedono l'autore che non usiamo. Meta la conferenza che non c'e.
+Le citazioni non sono particolarmente informative. Alcuni abstract mancano. 
+
+
+%In questo paragrafo si possono aggiungere delle osservazioni di carattere
+%generale sugli esperimenti; ad esempio, si pu\`o concludere se un proprio metodo
+%di reperimento o una variazione dei metodi pi\`u avanzati hanno portato a
+%qualche miglioramento rispetto alla \textit{baseline}.
 
 \end{document}
