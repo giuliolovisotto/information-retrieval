@@ -32,7 +32,7 @@ def get_r_i(mat_freq, query_id, query_term):
 
 
 def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, R):
-    #print pj
+    # print pj
     actual_qw = []
     indexes_of_qws = []
     for qw in pqw:
@@ -81,7 +81,7 @@ def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, R):
     tmp2[tmp2 != 0] = 1
     nis = tmp2.sum(axis=0)
     Ns = np.ones(red_fm.shape[1])*N
-    R = get_R(q_id)
+    # R = get_R(q_id)
     Rs = np.ones(red_fm.shape[1])*R
     r_is = np.array(r_is)
     idfs = np.log((N - nis - R + r_is + 0.5)*(r_is + 0.5)/(nis - r_is + 0.5)*(R - r_is + 0.5))
@@ -100,8 +100,8 @@ def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, R):
     res[pj, :, :] = np.vstack((idss, ress)).T
 
 
-def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
-    print pj
+def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, R):
+    # print pj
     actual_qw = []
     indexes_of_qws = []
     r_is = []
@@ -131,6 +131,11 @@ def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     # ress = np.multiply(ress, tf2s)
     ress = ress.sum(axis=1)
     idss = np.arange(0, red_fm.shape[0])
+
+    idss_indx = np.argsort(ress)[::-1]
+
+    idss = idss[idss_indx]
+    ress = ress[idss_indx]
     res[pj, :, :] = np.vstack((idss, ress)).T
 
 
@@ -199,7 +204,6 @@ def retrieve(k1, b, k2, R):
     results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
 
     for pj, (q, lst) in enumerate(queries.iteritems()):
-        print q
         p_pseudo(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N, R)
 
     # Parallel(n_jobs=cpu_count())(delayed(p_pseudo)(
@@ -221,6 +225,6 @@ def retrieve(k1, b, k2, R):
 if __name__ == "__main__":
     k1 = float(sys.argv[1])
     b = float(sys.argv[2])
-    k2 = float(sys.argv[2])
-    R = float(sys.argv[3])
+    k2 = float(sys.argv[3])
+    R = float(sys.argv[4])
     retrieve(k1, b, k2, R)
