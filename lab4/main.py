@@ -3,6 +3,9 @@ __author__ = 'giulio'
 import numpy as np
 import sys
 from joblib import cpu_count, Parallel, delayed
+import os
+from scipy import sparse, io
+import json
 
 
 def get_R(query_id):
@@ -28,7 +31,7 @@ def get_r_i(mat_freq, query_id, query_term):
     return r_i
 
 
-def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
+def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, R):
     #print pj
     actual_qw = []
     indexes_of_qws = []
@@ -56,7 +59,7 @@ def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     res[pj, :, :] = np.vstack((idss, ress)).T
 
     ranking = res[pj, :, :]
-    R = 10
+    # R = 10
     indx = np.argsort(ranking[:, 1])[::-1][0:R]
     relevants = ranking[indx, :]
     rel_ids = relevants[:, 0].astype(int)
@@ -89,88 +92,15 @@ def p_pseudo(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
     # ress = np.multiply(ress, tf2s)
     ress = ress.sum(axis=1)
     idss = np.arange(0, red_fm.shape[0])
+
+    idss_indx = np.argsort(ress)[::-1]
+
+    idss = idss[idss_indx]
+    ress = ress[idss_indx]
     res[pj, :, :] = np.vstack((idss, ress)).T
-    '''
-    print pj
-    actual_qw = []
-    for qw in pqw:
-        if qw in pwords:
-            actual_qw.append(qw)
-
-    for i, row in enumerate(fm):
-        score = 0
-        for jj, qw in enumerate(actual_qw):
-            index_of_qw = pwords[qw]
-            n_i = np.count_nonzero(fm[:, index_of_qw])
-            idf = np.log((N - n_i + 0.5) * 0.5/(n_i + 0.5) * 0.5)
-            dl = dls[i]
-            K = k1*((1-b) + b*(dl/avdl))
-            tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
-            tf2 = (k2 + 1)*1/(k2 + 1)
-            score += idf * tf1 * tf2
-        res[pj, i, :] = np.array([i, score])
-
-    ranking = res[pj, :, :]
-    R = 10
-    indx = np.argsort(ranking[:, 1])[::-1][0:R]
-    relevants = ranking[indx, :]
-    rel_ids = relevants[:, 0].astype(int)
-
-    r_is = []
-    for qw in actual_qw:
-        index_of_qw = pwords[qw]
-        r_is.append(get_r_i_pseudo(fm, rel_ids, index_of_qw))
-
-    r_is = np.array(r_is)
-
-    for i, row in enumerate(fm):
-        score = 0
-        for jj, qw in enumerate(actual_qw):
-            index_of_qw = pwords[qw]
-            r_i = r_is[jj]
-            n_i = np.count_nonzero(fm[:, index_of_qw])
-            idf = np.log((N - n_i - R + r_i + 0.5)*(r_i + 0.5)/(n_i - r_i + 0.5)*(R - r_i + 0.5))
-            dl = dls[i]
-            K = k1*((1-b) + b*(dl/avdl))
-            tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
-            tf2 = (k2 + 1)*1/(k2 + 1)
-            score += idf * tf1 * tf2
-        res[pj, i, :] = np.array([i, score])
-    '''
 
 
 def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
-    '''
-    print pj
-    actual_qw = []
-    r_is = []
-    for qw in pqw:
-        if qw in pwords:
-            actual_qw.append(qw)
-            index_of_qw = pwords[qw]
-            r_is.append(get_r_i(fm, q_id, index_of_qw))
-
-    R = get_R(q_id)
-
-    r_is = np.array(r_is)
-
-    for i, row in enumerate(fm):
-        score = 0
-        for jj, qw in enumerate(actual_qw):
-            index_of_qw = pwords[qw]
-            # print q_id, index_of_qw
-            r_i = r_is[jj]
-            # print "termine: %s, compare in %s" % (qw, r_i)
-            n_i = np.count_nonzero(fm[:, index_of_qw])
-            idf = np.log((N - n_i - R + r_i + 0.5)*(r_i + 0.5)/(n_i - r_i + 0.5)*(R - r_i + 0.5))
-            dl = dls[i]
-            K = k1*((1-b) + b*(dl/avdl))
-
-            tf1 = (k1 + 1)*fm[i, index_of_qw]/(K + fm[i, index_of_qw])
-            tf2 = (k2 + 1)*1/(k2 + 1)
-            score += idf * tf1 * tf2
-            res[pj, i, :] = np.array([i, score])
-    '''
     print pj
     actual_qw = []
     indexes_of_qws = []
@@ -205,42 +135,50 @@ def p_esplicito(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N):
 
 
 def indexing():
-    freq_docid_words = np.loadtxt("../data/freq.docid.stem.txt", dtype='str')
+    if not os.path.isfile("terms_mat.mtx"):
+        freq_docid_words = np.loadtxt("../data/freq.docid.stem.txt", dtype='str')
 
-    freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
+        freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
 
-    words = np.unique(freq_docid_words[:,2])
-    words_dict = {}
-    for i, w in enumerate(words):
-        words_dict[w] = i
+        words = np.unique(freq_docid_words[:,2])
+        words_dict = {}
+        for i, w in enumerate(words):
+            words_dict[w] = i
 
-    n_words = len(words)
-    print "%s distinct words" % n_words
+        n_words = len(words)
 
-    f = open('../data/docid.only-keywords.txt')
+        f = open('../data/docid.only-keywords.txt')
 
-    n_docs = len(f.readlines())
-    print "%s documents" % n_docs
+        n_docs = len(f.readlines())
 
-    f.close()
+        f.close()
 
-    terms_mat = np.zeros(shape=(n_docs, n_words))
+        terms_mat = np.zeros(shape=(n_docs, n_words))
 
-    for r in freq_docid_words:
-        freq, doc_id, word = int(r[0]), int(r[1]), r[2]
-        word_index = np.where(words==word)[0]
-        terms_mat[doc_id, word_index] = freq
+        for r in freq_docid_words:
+            freq, doc_id, word = int(r[0]), int(r[1]), r[2]
+            word_index = np.where(words==word)[0]
+            terms_mat[doc_id, word_index] = freq
 
-    terms_mat = terms_mat.astype(float)
+        terms_mat = terms_mat.astype(float)
 
-    docs_length = terms_mat.sum(axis=1)
+        docs_length = terms_mat.sum(axis=1)
 
-    terms_mat /= terms_mat.sum(axis=1)[:, None]
+        terms_mat /= terms_mat.sum(axis=1)[:, None]
+
+        terms_mat = sparse.csr_matrix(terms_mat)
+        io.mmwrite("terms_mat.mtx", terms_mat)
+        np.savetxt("docs_length.txt", docs_length)
+        json.dump(words_dict, open("words_dict.txt", 'w'))
+    else:
+        terms_mat = np.array(io.mmread("terms_mat.mtx").todense())
+        docs_length = np.loadtxt("docs_length.txt")
+        words_dict = json.load(open("words_dict.txt"))
 
     return terms_mat, docs_length, words_dict
 
 
-def retrieve():
+def retrieve(k1, b, k2, R):
     freq_mat, docs_length, words = indexing()
 
     query_stem = np.loadtxt("../data/query-stem.txt", dtype='str', delimiter="\t ")
@@ -256,16 +194,13 @@ def retrieve():
             queries[q_id].append(w)
     #print queries
     N = freq_mat.shape[0]
-    k1 = 0.02
-    k2 = 1.2
-    b = 0.0  # lascio basso perche normalizzare sulla lunghezza e' un po inutile nel nostro caso (abbiamo solo le kw)
     avdl = np.mean(docs_length)
 
     results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
 
     for pj, (q, lst) in enumerate(queries.iteritems()):
         print q
-        p_esplicito(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N)
+        p_pseudo(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N, R)
 
     # Parallel(n_jobs=cpu_count())(delayed(p_pseudo)(
     #    freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
@@ -277,13 +212,15 @@ def retrieve():
 
     f = open('results.txt', 'w')
     for j, query in enumerate(results):
-        indx = np.argsort(results[j, :, 1])[::-1][0:1000]
-        stuff_toprint = results[j, indx]
+        stuff_toprint = results[j, 0:1000]
         stuff_toprint = stuff_toprint[stuff_toprint[:, 1] > threshold]
         for i, row in enumerate(stuff_toprint):
-            f.write("%s Q0 %s %s %s G12R9\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
+            f.write("%s Q0 %s %s %s G12R7\n" % (queries.keys()[j], int(row[0]+1), i+1, row[1]))
     f.close()
 
 if __name__ == "__main__":
-
-    retrieve()
+    k1 = float(sys.argv[1])
+    b = float(sys.argv[2])
+    k2 = float(sys.argv[2])
+    R = float(sys.argv[3])
+    retrieve(k1, b, k2, R)

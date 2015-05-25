@@ -73,7 +73,7 @@ def index(indexdir):
 
 def retrieve(indexdir, queries):
     lucene.initVM()
-    f = open("results2.txt", "w")
+    f = open("results_lucene.txt", "w")
     analyzer = StandardAnalyzer(Version.LUCENE_4_10_1)
     reader = IndexReader.open(SimpleFSDirectory(File(indexdir)))
     searcher = IndexSearcher(reader)
