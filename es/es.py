@@ -10,24 +10,37 @@ sys.path.append("./../")
 
 from utils.utils import indexing
 
-init_f = 1.0
+_python_int = "python2"
+
+init_f = 0.5
 ps = 10
 lambda_v = 35
 
-# best for now
-# [0.02533949  0.02218594]
+# best for now (lab3)
+# partito da [1.2, 0.75]
+# [0.02533949  0.02218594] k1, b
 # 0.3354
 
-lb = np.array([1e-8, 1e-8, 0.0])
-ub = np.array([2.0, 1.0, 1.0])
+# best for now (lab5)
+# partito da [1.2, 0.75, 0.5]
+# [2.36851802e-02   1.00000000e-08   7.83202800e-01]
+# 0.3366
 
-N = 3
+# best for now (lab7)
+# partito da [1.2, 0.75, 1.0, 0.1, 0.1]
+#
+#
 
-start = np.array([1.2, 0.75, 0.5])
+lb = np.array([1e-8, 1e-8, 0.0, -1.0, -1.0])
+ub = np.array([2.0, 1.0, 1.0, 1.0, 1.0])
+
+N = 5
+
+start = np.array([0.02533949, 0.02218594, 1.0, 0.1, 0.1])
 
 X = np.tile(start, (ps, 1))
 
-S = np.tile(np.array([init_f, init_f, init_f]), (10, 1)) * (X/np.sqrt(N))
+S = np.tile(np.array(np.tile(init_f, (1, N))), (10, 1)) * (X/np.sqrt(N))
 
 tau = 1/np.sqrt(2 * N)
 tau2 = 1/np.sqrt(2 * np.sqrt(N))
@@ -53,20 +66,21 @@ def n_mutation(pop, sigmas, tau, tau2, lb, ub):
     return m_pop, m_sigm
 
 def single_eval(x, ind, out, j):
-    call(["python", "../lab5/main.py", str(x[0]), str(x[1]), '1.0', str(x[2])])
+    call([_python_int, "../lab7/main.py", str(x[0]), str(x[1]), '1.0', '10', str(x[2]), str(x[3]), str(x[4])])
     out[j] = evaluate_map("results.txt")
 
 
 def evaluate(pop):
     # fitnesses = np.zeros(shape=(pop.shape[0]), dtype='float')
     fitnesses = np.memmap("tmp2", shape=(pop.shape[0]), dtype='float', mode='w+')
-    n_j = cpu_count()
+    n_j = 4
 
     for ii, x in enumerate(pop):
         sys.stdout.write("\r%s/%s" % (ii+1, pop.shape[0]))
+        sys.stdout.flush()
         single_eval(x, str(ii % n_j), fitnesses, ii)
 
-    # Parallel(n_jobs=n_j)(delayed(single_eval)(x, str(ii % n_j), fitnesses, ii) for ii, x in enumerate(pop))
+    # Parallel(n_jobs=n_j)(delayed(single_eval)(x, ii, fitnesses, ii) for ii, x in enumerate(pop))
 
     return fitnesses
 
@@ -88,3 +102,6 @@ for i in range(1000):
     fitn = evaluate(X)
     X, S, fitn = comma_selection(ps, X, S, fitn)
     print fitn, X[0, :]
+    f = open('feval.txt', 'a')
+    f.write("%s,%s\n" % (i, fitn[0]))
+    f.close()

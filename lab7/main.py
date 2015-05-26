@@ -85,7 +85,7 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, Nd, alph
     except nx.exception.NetworkXError, e:
         auths = {str(nid): 1.0 for nid in idss_N}
         hubs = {str(nid): 1.0 for nid in idss_N}
-        print "HITS failed to converge"
+        # print "HITS failed to converge"
 
     tmp_keys = auths.keys()
     for k in tmp_keys:
