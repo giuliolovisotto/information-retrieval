@@ -53,7 +53,52 @@ Qui va il contenuto del laboratorio n. 7.
 \subsection{Evolution Strategy}
 \label{sec:es}
 
-L'ottimizzazione intelligente.
+Per ottimizzare gli algoritmi di reperimento abbiamo scelto di utilizzare un Evolution Strategy~\cite{back1996evolutionary} (ES) che e' una tecnica di ottimizzazione basata sui principi che regolano l'evoluzione. Tecniche di questo tipo sono piu' robuste rispetto ai metodi di ricerca lineare per quanto riguardo i massimi locali. Il loro svantaggio consiste nel maggior numero di valutazioni richieste. Nel nostro contesto una valutazione impiega circa 3-10 secondi a seconda della complessita' del metodo di reperimento. Cio' permette di eseguire l'algoritmo di ottimizzazione in un tempo accettabile.
+
+I parametri che abbiamo scelto di ottimizzare cambiano in base alla tecnica di reperimento (e quindi del laboratorio). Per il laboratorio 3 abbiamo scelto di ottimizzare $k_1, b$, ignoriamo $k_2$ in quando abbiamo visto che non ci sono termini ripetuti nelle query e quindi tale termine non influisce sul punteggio. Per il laboratorio 5 ottimizziamo $k_1, b, \alpha$. Per il laboratorio 7 ottimizziamo $k_1, b, \alpha, \beta, \gamma$. La funzione da massimizzare e' la Mean Average Precision.
+
+Le figure \ref{fig:es_lab3}, \ref{fig:es_lab5} e \ref{fig:es_lab7} riportano l'andamento della MAP durante l'ottimizzazione della funzione di reperimento dei laboratori, rispettivamente lab 3, lab 5 e lab 7. La serie \textit{baseline} corrisponde alla MAP ottenuta con il laboratorio 3 prima dell'ottimizzazione. La serie \textit{lab3\_opt} corrisponde alla MAP ottenuta con il laboratorio 3 dopo l'ottimizzazione dei parametri.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]{figures/es_lab3.png}
+		\caption{MAP durante ottimizzazione laboratorio 3.}
+		\label{fig:es_lab3}
+	\end{center}
+\end{figure}
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]{figures/es_lab5.png}
+		\caption{MAP durante ottimizzazione laboratorio 5.}
+		\label{fig:es_lab5}
+	\end{center}
+\end{figure}
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]{figures/es_lab5.png}
+		\caption{MAP durante ottimizzazione laboratorio 7.}
+		\label{fig:es_lab7}
+	\end{center}
+\end{figure}
+
+Tabella \ref{tab:es} riporta i risultati dell'ottimizzazione.
+\begin{table}[htdp]
+\caption{Risultati ottimizzazione con ES per i vari laboratori.}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+laboratorio & parametri & MAP \\
+ \hline
+3 & $k_1 = 0.0253, b = 0.0221$ & $0.3354$ \\
+5 & $k_1 = 0.0237, b = 0.0, \alpha=0.7832$ & $0.3366$ \\
+7 & $k_1 = 0.0237, b = 0.0, \alpha=0.7832$ & $0.3366$ \\
+\hline
+\end{tabular}
+\end{center}
+\label{tab:es}
+\end{table}
+
+Come si puo' vedere grazie all'ES si e' ottenuto un notevole miglioramento in termini di MAP rispetto alla nostra prima versione. I risultati dell'ottimizzazione vengono discussi in Sezione \ref{sec:risult-sper}.
 
 \subsection{Altri metodi}
 tipo lucene
