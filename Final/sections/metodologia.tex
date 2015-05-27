@@ -57,7 +57,79 @@ Per ottimizzare gli algoritmi di reperimento abbiamo scelto di utilizzare un Evo
 
 I parametri che abbiamo scelto di ottimizzare cambiano in base alla tecnica di reperimento (e quindi del laboratorio). Per il laboratorio 3 abbiamo scelto di ottimizzare $k_1, b$, ignoriamo $k_2$ in quando abbiamo visto che non ci sono termini ripetuti nelle query e quindi tale termine non influisce sul punteggio. Per il laboratorio 5 ottimizziamo $k_1, b, \alpha$. Per il laboratorio 7 ottimizziamo $k_1, b, \alpha, \beta, \gamma$. La funzione da massimizzare e' la Mean Average Precision.
 
-Le figure \ref{fig:es_lab3}, \ref{fig:es_lab5} e \ref{fig:es_lab7} riportano l'andamento della MAP durante l'ottimizzazione della funzione di reperimento dei laboratori, rispettivamente lab 3, lab 5 e lab 7. La serie \textit{baseline} corrisponde alla MAP ottenuta con il laboratorio 3 prima dell'ottimizzazione. La serie \textit{lab3\_opt} corrisponde alla MAP ottenuta con il laboratorio 3 dopo l'ottimizzazione dei parametri.
+Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione della funzione di reperimento dei laboratori. 
+\begin{figure*}
+        \centering
+        \begin{subfigure}[b]{0.475\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \caption[Network2]%
+            {{\small Laboratorio 3 (baseline)}}    
+            \label{fig:es_lab3}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.475\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \caption[]%
+            {{\small Laboratorio 4 (relevance feedback esplicito)}}    
+            \label{fig:es_lab4_esp}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.475\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \caption[]%
+            {{\small Laboratorio 4 (relevance feedback pseudo)}}    
+            \label{fig:es_lab4_pse}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.475\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{figures/es_lab5.png}
+            \caption[]%
+            {{\small Laboratorio 5 (\textsc{pagerank})}}    
+            \label{fig:es_lab5_esp}
+        \end{subfigure}
+        \vskip\baselineskip
+        \begin{subfigure}[b]{0.475\textwidth}  
+            \centering 
+            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \caption[]%
+            {{\small Laboratorio 6 (\textsc{lsa})}}    
+            \label{fig:es_lab6}
+        \end{subfigure}
+        \quad
+        \begin{subfigure}[b]{0.475\textwidth}   
+            \centering 
+            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \caption[]%
+            {{\small Laboratorio 7 (\textsc{hits})}}    
+            \label{fig:es_lab7}
+        \end{subfigure}
+        \caption[ The average and standard deviation of critical parameters ]
+        {\small The average and standard deviation of critical parameters: Region R4} 
+        \label{fig:es_all}
+\end{figure*}
+
+
+%\begin{figure}
+%	\centering
+%	\begin{subfigure}{.5\textwidth}
+%		\centering
+%		\includegraphics[width=1\textwidth]{figures/es_lab3.png}
+%		\caption{MAP durante iterazioni dell'ES per il laboratorio 3.}
+%		\label{fig:uno}
+%	\end{subfigure}%
+%	\begin{subfigure}{.5\textwidth}
+%		\centering
+%		\includegraphics[width=1\textwidth]{figiures/es_lab5.png}
+%		\caption{Grafo base ($B_{56}$).}
+%		\label{fig:due}
+%	\end{subfigure}
+%	\caption{MAP durante iterazioni dell'es}
+%	\label{fig:unodue}
+%\end{figure}
 
 \begin{figure}[htbp]
 	\begin{center}

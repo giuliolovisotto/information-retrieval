@@ -1,4 +1,4 @@
-iterations,es
+iterations,lab5
 0,0.0428
 1,0.1598
 2,0.2509
