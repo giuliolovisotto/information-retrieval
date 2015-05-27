@@ -21,6 +21,16 @@ lambda_v = 35
 # [0.02533949  0.02218594] k1, b
 # 0.3354
 
+# best for now (lab4) esplicito
+# partito da [1.2, 0.75]
+# [2.06449110e-02   2.25921442e-05] R=50
+# 0.3504
+
+# best for now (lab4) pseudo
+# partito da [1.2, 0.75] R=50
+# [] R=50
+#
+
 # best for now (lab5)
 # partito da [1.2, 0.75, 0.5]
 # [2.36851802e-02   1.00000000e-08   7.83202800e-01]
@@ -31,12 +41,12 @@ lambda_v = 35
 #
 #
 
-lb = np.array([1e-8, 1e-8, 0.0, -1.0, -1.0])
-ub = np.array([2.0, 1.0, 1.0, 1.0, 1.0])
+lb = np.array([1e-8, 1e-8])
+ub = np.array([2.0, 1.0])
 
-N = 5
+N = 2
 
-start = np.array([0.02533949, 0.02218594, 1.0, 0.1, 0.1])
+start = np.array([1.2, 0.75])
 
 X = np.tile(start, (ps, 1))
 
@@ -45,7 +55,15 @@ S = np.tile(np.array(np.tile(init_f, (1, N))), (10, 1)) * (X/np.sqrt(N))
 tau = 1/np.sqrt(2 * N)
 tau2 = 1/np.sqrt(2 * np.sqrt(N))
 
-fit = np.ones(shape=(ps, 1)) * 30.00
+call([_python_int, "../lab4/main.py", str(start[0]), str(start[1]), '1.0', '50'])
+fit = evaluate_map("results.txt")
+
+fitn = np.ones(shape=(ps, )) * fit
+
+f = open('feval.txt', 'a')
+f.write("%s,%s\n" % (0, fitn[0]))
+f.close()
+
 
 def discrete_recombination(pop, l):
     r_pop = np.zeros((l, pop.shape[1]))
@@ -66,7 +84,7 @@ def n_mutation(pop, sigmas, tau, tau2, lb, ub):
     return m_pop, m_sigm
 
 def single_eval(x, ind, out, j):
-    call([_python_int, "../lab7/main.py", str(x[0]), str(x[1]), '1.0', '10', str(x[2]), str(x[3]), str(x[4])])
+    call([_python_int, "../lab4/main.py", str(x[0]), str(x[1]), '1.0', '50'])
     out[j] = evaluate_map("results.txt")
 
 
