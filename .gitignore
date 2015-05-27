@@ -90,3 +90,6 @@ es/tmp2
 es/results.txt
 
 lab7/.ipynb_checkpoints
+*.fdb_latexmk
+*.fls
+*/.ipynb_checkpoints
