@@ -28,18 +28,23 @@ lambda_v = 35
 
 # best for now (lab4) pseudo
 # partito da [1.2, 0.75] R=50
-# [] R=50
-#
+# [ 2.02647912e-02   1.00000000e-08] R=50
+# 0.3022
 
 # best for now (lab5)
 # partito da [1.2, 0.75, 0.5]
 # [2.36851802e-02   1.00000000e-08   7.83202800e-01]
 # 0.3366
 
+# best for now (lab6) N=10, m=2
+# partito da [1.2, 0.75]
+# [8.70400657e-03   1.00000000e-08]
+# 0.2648
+
 # best for now (lab7)
 # partito da [1.2, 0.75, 1.0, 0.1, 0.1]
-#
-#
+# [0.02466756  0.01853281  1.         0.10971746  0.05485873]
+# 0.3405
 
 lb = np.array([1e-8, 1e-8])
 ub = np.array([2.0, 1.0])
@@ -55,7 +60,7 @@ S = np.tile(np.array(np.tile(init_f, (1, N))), (10, 1)) * (X/np.sqrt(N))
 tau = 1/np.sqrt(2 * N)
 tau2 = 1/np.sqrt(2 * np.sqrt(N))
 
-call([_python_int, "../lab4/main.py", str(start[0]), str(start[1]), '1.0', '50'])
+call([_python_int, "../lab6/main.py", str(start[0]), str(start[1]), '1.0', '10'])
 fit = evaluate_map("results.txt")
 
 fitn = np.ones(shape=(ps, )) * fit
@@ -84,7 +89,7 @@ def n_mutation(pop, sigmas, tau, tau2, lb, ub):
     return m_pop, m_sigm
 
 def single_eval(x, ind, out, j):
-    call([_python_int, "../lab4/main.py", str(x[0]), str(x[1]), '1.0', '50'])
+    call([_python_int, "../lab6/main.py", str(x[0]), str(x[1]), '1.0', '10'])
     out[j] = evaluate_map("results.txt")
 
 

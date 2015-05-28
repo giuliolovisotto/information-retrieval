@@ -2,7 +2,9 @@ __author__ = 'giulio'
 
 import numpy as np
 import sys
-
+import time
+from scipy import sparse, io
+import os
 
 sys.path.append("./../")
 
@@ -11,17 +13,19 @@ from utils.utils import indexing
 
 
 def get_matrix(row, col, file_name, dictionary):
-    terms_mat = np.zeros(shape=(row, col))
-
-    freq_docid_words = np.loadtxt(file_name, dtype='str')
-    freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
-
-    for r in freq_docid_words:
-        freq, doc_id, word = int(r[0]), int(r[1]), r[2]
-        word_index = dictionary[word]
-        terms_mat[doc_id, word_index] = freq
-
-    return terms_mat
+    if not os.path.isfile("doc_term_mat.mtx"):
+        terms_mat = np.zeros(shape=(row, col))
+        freq_docid_words = np.loadtxt(file_name, dtype='str')
+        freq_docid_words[:, 1] = (freq_docid_words[:, 1].astype(int) - 1).astype(str)
+        for r in freq_docid_words:
+            freq, doc_id, word = int(r[0]), int(r[1]), r[2]
+            word_index = dictionary[word]
+            terms_mat[doc_id, word_index] = freq
+        terms_mat = sparse.csr_matrix(terms_mat)
+        io.mmwrite("doc_term_mat.mtx", terms_mat)
+        return np.array(terms_mat.todense())
+    else:
+        return np.array(io.mmread("doc_term_mat.mtx").todense())
 
 def cossim(s1, s2):
     """
@@ -80,7 +84,6 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, Nd):
     ress = ress[idss_indx]
 
     idss_N = idss[0:Nd]
-    ress_N = ress[0:Nd]
 
     occ_matrix = get_matrix(fm.shape[0], fm.shape[1], "../data/freq.docid.stem.txt", pwords)
 
@@ -98,24 +101,16 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, Nd):
 
     # rimuove colonne che hanno solo zeri
     occ_matrix = occ_matrix[:, indxs]
-
     u, s, vt = np.linalg.svd(occ_matrix.T, full_matrices=False)
     m = 2
-    u[:, m:] = 0
-    # u = u[:, :m]
-    # sigma = np.diag(s)[:m, :m]
-    sigma = np.diag(s)
-    sigma_inv = np.diag(np.ones(len(s))/s)
-    # sigma_inv = np.linalg.inv(sigma)
-    sigma_inv[:, m:] = 0
-    sigma[:, m:] = 0
-    # sigma[:, m:] = 0
-    # vt = vt[:m, :]
-    vt[m:, :] = 0
+
+    u = u[:, :m]
+    sigma = np.diag(s)[:m, :m]
+    vt = vt[:m, :]
 
     # lowRankDocumentTermMatrix = np.dot(u, np.dot(sigma, vt))
 
-    lowDimensionalQuery = np.dot(sigma_inv, np.dot(u.T, queryVector))
+    lowDimensionalQuery = np.dot(np.linalg.inv(sigma), np.dot(u.T, queryVector))
 
     similarity_array = np.zeros(Nd)
 
@@ -124,7 +119,6 @@ def p_original(fm, q_id, pqw, pwords, dls, pj, res, k1, k2, b, avdl, N, Nd):
 
     sortd = np.argsort(similarity_array)[::-1]
 
-    ress_N = ress_N[sortd]
     idss_N = idss_N[sortd]
 
     idss[0:Nd] = idss_N
