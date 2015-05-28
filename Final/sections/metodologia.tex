@@ -13,33 +13,73 @@ Fare dei paragrafi per BM25, PageRank, Hits, LSA, ES.
 \subsection{Approccio}
 \label{sec:approccio}
 
-%Vogliamo max la map. Usando treceval spiegare cos'e'. Spiegare brevemente il lavoro, molto veloce dire che abbiamo lavorato insieme dopo la prima sessione in lab. Usato python, con \texttt{numpy} per matrici, matplotlib per plottare, networkx per grafi, git per versionamento, latex per i report.
-%Il nostro scopo e' ottenere un valore di map il piu' elevato possibile. Per calcolarla e verificarne il cambiamento durante le varie versione del codice utilizziamo \texttt{treceval}, esso e' il tool standard usato dalla "TREC community" per valutare un'esecuzione ad hoc, dandole il file contenete i risultati e un set standard di risultati giudicati.  
+Il nostro scopo e' ottenere un valore di map il piu' elevato possibile. Per calcolarla e verificarne il cambiamento durante le varie versione del codice utilizziamo \texttt{treceval}, esso e' il tool standard usato dalla "TREC community" per valutare un'esecuzione ad hoc, dandole il file contenete i risultati e un set standard di risultati giudicati.  
 
-%Abbiamo deciso di utilizzare un approccio probabilistico poiche' fornisce una formalizzazione piu' pulita di cosa volgiamo che faccia un sistema IR: dare documenti rilevanti agli utenti. 
-%Inoltre per via delle nostre conoscenze abbiamo voluto utilizzare il linguaggio Python per dare corpo ai progetti. Inoltre vi sono diverse librerie che implementano molti metodi utili per tale corso e per garantire buone performance al codice: \texttt{numpy} usata per la gestione delle matrici, \texttt{matplotlib} utilizza per effettuare i plot (grafici) dei risultati ottenuti, \texttt{networkx} utilizzata per la creazione e gestione dei grafi.
-%Oltre a \texttt{Python} abbiamo utilizzato altri software per il lavoro. E' stato usato \texttt{Git}, e' un sistema di versionamento distribuito, per lo scambio del codice e l'aggiornamente delle diverse versioni di quest'ultimo. Infini \texttt{latex} per la scrittura dei pdf di report.
-%Per ogni esercitazioni è stato utilizzato un approccio di gruppo. Dopo la prima sessione di laboratorio di ogni esercitazione ci siamo ritrovati per la scrittura del codice, la discussione sui risultati e la stesione del report.
+Abbiamo optato approccio probabilistico per la risoluzione dei laboratori, poiche' fornisce una formalizzazione piu' pulita di cosa volgiamo che faccia un sistema IR: dare documenti rilevanti agli utenti. 
+Inoltre per via delle nostre conoscenze abbiamo voluto utilizzare il linguaggio Python per dare corpo ai progetti. Inoltre vi sono diverse librerie che implementano molti metodi utili per tale corso e per garantire buone performance al codice: \texttt{numpy} usata per la gestione delle matrici, \texttt{matplotlib} utilizza per effettuare i plot (grafici) dei risultati ottenuti, \texttt{networkx} utilizzata per la creazione e gestione dei grafi.
+Oltre a \texttt{Python} abbiamo utilizzato altri software per il lavoro. E' stato usato \texttt{Git}, e' un sistema di versionamento distribuito, per lo scambio del codice e l'aggiornamente delle diverse versioni di quest'ultimo. Infini \texttt{latex} per la scrittura dei pdf di report.
+Per ogni esercitazioni è stato utilizzato un approccio di gruppo. Dopo la prima sessione di laboratorio di ogni esercitazione ci siamo ritrovati per la scrittura del codice, la discussione sui risultati e la stesione del report.
 
 \subsection{Indicizzazione} \label{sec:metodi-di-indic}
 
-Qui va il contenuto del laboratorio n. 2.
+\textbf{OBBIETTIVI}: comprensione dei meccanismi di indicizzazione e costruzione di un algoritmo di indicizzazione.
+\textbf{PROCEDIMENTO}: come base di partenza abbiamo tre diversi file contenenti: \begin{enumerate}\item frequenza delle parole stemmate \item la stoplist \item le keywords per ogni documento \end{enumerate}
+Vogliamo estrarre i pesi tf-idf dei termini dataci la collezione e produrre in output un file che li contenga, quest'ultimo sara' formattato nel seguente modo: 
+word1  doc_id  weight
+word2  doc_id  weight
+...
+Poiche' le stop words sono gia' state rimosse dalle keywords, ci permettiamo di ignorare la stoplist, inoltre le keywords sono gia' state stemmate quindi possiamo ignorare anche il file che contiene le stemmature.
+L'algoritmo scritto costruisce una dizionario, costituito dalle parole uniche, dopo di che' costruisce una matrice con numero di colonne pari al numero di documenti e come righe il numero di parole, contenente l'occorrenza, usando il file delle frequenze. Avendo la matrice utilizza la \textit{TfidfTransformer} del modulo scikit-learn (presente al link: scikit-learn.org/stable) per ottenere una matrice dei pesi tf-idf e salvarla nel file di output.
 
 \subsection{Reperimento}
 \label{sec:metodi-di-reper}
 
-Qui va il contenuto del laboratorio n. 3. Esso rappresenta la \textit{baseline}.
+\textbf{OBBIETTIVI}: comprensione dei meccanismi di reperimento e costruzione di un primo algoritmo di reperimento
+\textbf{PROCEDIMENTO}: abbiamo studiato ed utilizzato l'algoritmo di ranking Okapi BM25. Per poterlo implementare necessitiamo della matrice delle frequenze di grandezza \textit{n documenti} X \textit{n parole} e di un array contenente le lunghezze dei vari documenti.
+La nostra funzione di reperimento è cosi' composta: per ogni query $Q$ scorrera' la lista dei documenti (cioe' le righe della matrice) e per ognuno di essi scorre i termini della query calcolandone gli score, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
+\begin{algorithmic}
+\State $Q \gets query$
+\ForAll{$doc \in C$} 
+    \State $score\gets 0$
+    \ForAll{$qw \in Q$}
+        \State $score \gets score + f_{bm25}(doc, qw)$
+    \EndFor
+\EndFor\\
+\Return top $k$ scoring documents
+\end{algorithmic}
+Tale algoritmo ha complessita' $O(n \cdot m)$, dove $n$ e' il numero di documenti nella collezione ed $m$ e' il numero di descrittori nell'interrogazione (query) $Q$.
 
 \subsection{Relevance Feedback}
 \label{sec:relevance-feedback}
 
-Qui va il contenuto del laboratorio n. 4.
+\textbf{OBBIETTIVI}: comprensione del \textit{Relevance Feedback} (RF) e scrittura di una funzione di reperimento equipaggiata con \textit{RF esplicito} e una seconda con \textit{RF pseudo}.
+
+\textbf{PROCEDIMENTO}: durante il calcolo di BM25 terremo conto dei giudizi di rilevanza, per quanto riguarda il caso di feedback esplicito verra' utilizzato il file \textit{qrels-treceval.txt}  \textbf{DIRE COSA CONTIENE}
+\[ \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i}. \]
+La formula di BM25 tiene gia' in considerazione i giudizi di rilevanza, infatti $R$ rappresenta il numero di documenti rilevanti per la query presa in considerazione, mentre il valore di $r_i$ rappresenta il numero di documenti rilevanti che contengono il termine $i$.
+Il procedimento si suddivide in due passi sia per il calcolo del \tetxtit{Relevance Feedback Esplicito} sia per \textit{Pseudo Relevance Feedback}.
+Il primo passo e' comune e consiste nel calcolo del ranking senza informazioni di rilevanza, il secondo passo differisce:
+\begin{enumerate}
+\item \textbf{Relevance Feedback Esplicito}: tra i primi $N$ documenti verranno estratti quelli ritenuti rilevanti utilizzando il file \texttt{qrels-treceval.txt}, da tali documenti verranno estratti i valori di $R$ ed $r_i$ che saranno usati per la seconda esecuzione dell'algoritmo.
+\item \textbf{Pseudo Relevance Feedback}: verranno considerati rilevanti i primi $N$ documenti, con tali documenti verranno trovati i valori di $R$ ed $r_i$ utilizzati per la seconda esecuzione dell'algoritmo.
+Per poter effettuare il calcolo dei valori di $R$ ed $r_i$ l'algoritmo utilizzera' le frequenze di occorrenza delle parole per ogni documento (contenute in una matrice di grandezza $n_docs$ X $n_words$). Durante il reperimento per ogni documento e per ogni termine $i$ l'algoritmo calcola il numero di documenti considerati rilevanti che lo contengono e salvera' tale valore in una mappa $map$ (mappa $i$->$r_i$), con questa mappa l'algoritmo calcola il ranking rispetto ai valori di $R$ ed $r_i$.
+
 
 \subsection{PageRank}
 \label{sec:pagerank}
 
-Qui va il contenuto del laboratorio n. 5.
+\textbf{OBBIETTIVI}: comprensione di PageRank, implementazione di PageRank e scrittura di una funzione di reperimento che lo integri.
 
+\textbf{PROCEDIMENTO}: la funzione di reperimento combinera' gli score di BM25 ($rk$) con il valore del pagerank ($pr$) attraverso la seguente formula:
+
+\[ score =  \alpha \cdot rk + (1-\alpha) \cdot pr,\]
+
+dove $\alpha$ e' un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uniformemente da pagerank a BM25.
+Ma poter effettuare questo confronto in modo coerente, entrambe le distribuzioni devono essere ridimensionate, si effettua quindi una normalizzazione in modo da avere valori compresi tra 0 e 1. Per far cio' abbiamo usato la formula:
+
+\[ z_i = \frac{x_i - min(x)}{max(x) - min(x)}, \]
+
+Per effettuare il calcolo del pagerank abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read_edgelist} permette la costruzione del grafo delle citazione a partire dalla lista 	di archi. Inoltre dispone del metodo \texttt{pagerank} per la computazione del pagerank utilizzando \textit{power iteration} sulla matrice di transizione, tale computazione e' fatta a tempo di indexing e i valori verranno utilizzati a tempo di retrieval.
 \subsection{Latent Semantic Analysis}
 \label{sec:lsa}
 
