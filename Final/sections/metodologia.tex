@@ -53,38 +53,38 @@ Qui va il contenuto del laboratorio n. 7.
 \subsection{Evolution Strategy}
 \label{sec:es}
 
-Per ottimizzare gli algoritmi di reperimento abbiamo scelto di utilizzare un Evolution Strategy~\cite{back1996evolutionary} (ES) che e' una tecnica di ottimizzazione basata sui principi che regolano l'evoluzione. Tecniche di questo tipo sono piu' robuste rispetto ai metodi di ricerca lineare per quanto riguardo i massimi locali. Il loro svantaggio consiste nel maggior numero di valutazioni richieste. Nel nostro contesto una valutazione impiega circa 3-10 secondi a seconda della complessita' del metodo di reperimento. Cio' permette di eseguire l'algoritmo di ottimizzazione in un tempo accettabile.
+Per ottimizzare gli algoritmi di reperimento abbiamo scelto di utilizzare un Evolution Strategy~\cite{back1996evolutionary} (ES) che e' una tecnica di ottimizzazione basata sui principi che regolano l'evoluzione. Tecniche di questo tipo sono piu' robuste rispetto ai metodi di ricerca lineare per quanto riguardo i massimi locali. Il loro svantaggio consiste nel maggior numero di valutazioni richieste. Nel nostro contesto una valutazione impiega circa 3-15 secondi a seconda della complessita' del metodo di reperimento. Cio' permette di eseguire l'algoritmo di ottimizzazione in un tempo accettabile.
 
-I parametri che abbiamo scelto di ottimizzare cambiano in base alla tecnica di reperimento (e quindi del laboratorio). Per il laboratorio 3 abbiamo scelto di ottimizzare $k_1, b$, ignoriamo $k_2$ in quando abbiamo visto che non ci sono termini ripetuti nelle query e quindi tale termine non influisce sul punteggio. Per il laboratorio 5 ottimizziamo $k_1, b, \alpha$. Per il laboratorio 7 ottimizziamo $k_1, b, \alpha, \beta, \gamma$. La funzione da massimizzare e' la Mean Average Precision.
+I parametri che abbiamo scelto di ottimizzare cambiano in base alla funzione di reperimento (e quindi del laboratorio). Per il laboratorio 3, 4, 6 abbiamo scelto di ottimizzare $k_1, b$. Ignoriamo $k_2$ in quando abbiamo visto che non ci sono termini ripetuti nelle query e quindi tale termine non influisce sul punteggio. Per il laboratorio 5 ottimizziamo $k_1, b, \alpha$. Per il laboratorio 7 ottimizziamo $k_1, b, \alpha, \beta, \gamma$. Per lo pseudo relevance feedback del laboratorio 4 il numero di documenti considerati rilevanti $R = 50$, mentre per l'\textsc{lsa} del laboratorio 6 il numero di documenti da riordinare $N = 30$, e il numero di dimensioni per la riduzione $m=2$ (tali parametri sono interi e non si prestano ad un ottimizzazione tramite ES). La funzione da massimizzare e' la Mean Average Precision.
 
 Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione della funzione di reperimento dei laboratori. 
 \begin{figure*}
         \centering
-        \begin{subfigure}[b]{0.475\textwidth}
+        \begin{subfigure}[htpb]{0.475\textwidth}
             \centering
             \includegraphics[width=\textwidth]{figures/es_lab3.png}
             \caption[Network2]%
-            {{\small Laboratorio 3 (baseline)}}    
+            {{\small Laboratorio 3 (\textsc{baseline})}}    
             \label{fig:es_lab3}
         \end{subfigure}
         \hfill
-        \begin{subfigure}[b]{0.475\textwidth}  
+        \begin{subfigure}[htpb]{0.475\textwidth}  
             \centering 
-            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \includegraphics[width=\textwidth]{figures/es_lab4_e.png}
             \caption[]%
-            {{\small Laboratorio 4 (relevance feedback esplicito)}}    
+            {{\small Laboratorio 4 (\textsc{RF} esplicito)}}    
             \label{fig:es_lab4_esp}
         \end{subfigure}
         \vskip\baselineskip
-        \begin{subfigure}[b]{0.475\textwidth}   
+        \begin{subfigure}[htpb]{0.475\textwidth}   
             \centering 
-            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \includegraphics[width=\textwidth]{figures/es_lab4_p.png}
             \caption[]%
-            {{\small Laboratorio 4 (relevance feedback pseudo)}}    
+            {{\small Laboratorio 4 (\textsc{RF} pseudo)}}    
             \label{fig:es_lab4_pse}
         \end{subfigure}
         \quad
-        \begin{subfigure}[b]{0.475\textwidth}   
+        \begin{subfigure}[htpb]{0.475\textwidth}   
             \centering 
             \includegraphics[width=\textwidth]{figures/es_lab5.png}
             \caption[]%
@@ -92,85 +92,47 @@ Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione d
             \label{fig:es_lab5_esp}
         \end{subfigure}
         \vskip\baselineskip
-        \begin{subfigure}[b]{0.475\textwidth}  
+        \begin{subfigure}[htpb]{0.475\textwidth}  
             \centering 
-            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \includegraphics[width=\textwidth]{figures/es_lab6.png}
             \caption[]%
             {{\small Laboratorio 6 (\textsc{lsa})}}    
             \label{fig:es_lab6}
         \end{subfigure}
         \quad
-        \begin{subfigure}[b]{0.475\textwidth}   
+        \begin{subfigure}[htpb]{0.475\textwidth}   
             \centering 
-            \includegraphics[width=\textwidth]{figures/es_lab3.png}
+            \includegraphics[width=\textwidth]{figures/es_lab7.png}
             \caption[]%
             {{\small Laboratorio 7 (\textsc{hits})}}    
             \label{fig:es_lab7}
         \end{subfigure}
         \caption[ The average and standard deviation of critical parameters ]
-        {\small The average and standard deviation of critical parameters: Region R4} 
+        {\small Valore MAP durante iterazioni dell'ES, per le funzioni di reperimento dei vari laboratori.} 
         \label{fig:es_all}
 \end{figure*}
-
-
-%\begin{figure}
-%	\centering
-%	\begin{subfigure}{.5\textwidth}
-%		\centering
-%		\includegraphics[width=1\textwidth]{figures/es_lab3.png}
-%		\caption{MAP durante iterazioni dell'ES per il laboratorio 3.}
-%		\label{fig:uno}
-%	\end{subfigure}%
-%	\begin{subfigure}{.5\textwidth}
-%		\centering
-%		\includegraphics[width=1\textwidth]{figiures/es_lab5.png}
-%		\caption{Grafo base ($B_{56}$).}
-%		\label{fig:due}
-%	\end{subfigure}
-%	\caption{MAP durante iterazioni dell'es}
-%	\label{fig:unodue}
-%\end{figure}
-
-\begin{figure}[htbp]
-	\begin{center}
-		\includegraphics[width=0.75\textwidth]{figures/es_lab3.png}
-		\caption{MAP durante ottimizzazione laboratorio 3.}
-		\label{fig:es_lab3}
-	\end{center}
-\end{figure}
-\begin{figure}[htbp]
-	\begin{center}
-		\includegraphics[width=0.75\textwidth]{figures/es_lab5.png}
-		\caption{MAP durante ottimizzazione laboratorio 5.}
-		\label{fig:es_lab5}
-	\end{center}
-\end{figure}
-\begin{figure}[htbp]
-	\begin{center}
-		\includegraphics[width=0.75\textwidth]{figures/es_lab5.png}
-		\caption{MAP durante ottimizzazione laboratorio 7.}
-		\label{fig:es_lab7}
-	\end{center}
-\end{figure}
-
 Tabella \ref{tab:es} riporta i risultati dell'ottimizzazione.
-\begin{table}[htdp]
-\caption{Risultati ottimizzazione con ES per i vari laboratori.}
+\begin{table}[htpb]
+
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
-laboratorio & parametri & MAP \\
+metodo & parametri ottimizzati & MAP \\
  \hline
-3 & $k_1 = 0.0253, b = 0.0221$ & $0.3354$ \\
-5 & $k_1 = 0.0237, b = 0.0, \alpha=0.7832$ & $0.3366$ \\
-7 & $k_1 = 0.0237, b = 0.0, \alpha=0.7832$ & $0.3366$ \\
+\textsc{baseline} & $k_1 = 0.0253, b = 0.0221$ & $0.3354$ \\
+\textsc{rf} esplicito & $k_1 = 0.02065, b = 0.0$ & $0.3504$ \\
+\textsc{rf} pseudo & $k_1 = 0.02065, b = 0.0$ & $0.3022$ \\
+\textsc{pagerank} & $k_1 = 0.0237, b = 0.0, \alpha=0.7832$ & $0.3366$ \\
+\textsc{lsa} & $k_1 = 0.0087, b = 0.0$ & $0.2648$ \\
+\textsc{hits} & $k_1 = 0.0247, b = 0.0185, \alpha=1.0, \beta=0.1098, \gamma=0.0549$ & $0.3405$ \\
 \hline
 \end{tabular}
 \end{center}
+\caption{Risultati ottimizzazione con ES per le funzioni di reperimento dei vari laboratori.}
 \label{tab:es}
 \end{table}
 
-Come si puo' vedere grazie all'ES si e' ottenuto un notevole miglioramento in termini di MAP rispetto alla nostra prima versione. I risultati dell'ottimizzazione vengono discussi in Sezione \ref{sec:risult-sper}.
+Grazie all'ES si e' ottenuto un notevole miglioramento rispetto alla prima versione dove i parametri sono stati scelti empiricamente, e la MAP si aggirava attorno al $0.25$. Inoltre dai grafici si puo' notare come l'algoritmo di ottimizzazione sia molto robusto, dato che dopo $\sim{300}$ valutazioni e' gia' molto vicino alla configurazione ottima. I risultati dell'ottimizzazione vengono discussi in Sezione \ref{sec:risult-sper}.
 
 \subsection{Altri metodi}
 tipo lucene

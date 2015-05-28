@@ -14,6 +14,7 @@
 \usepackage{caption}
 \usepackage{hyperref}
 \usepackage{subcaption}
+\usepackage{float}
 % \usepackage[caption=false]{subfig}
 
 \begin{document}
@@ -44,16 +45,18 @@ Lo scriviamo alla fine.
 \input{sections/introduzione.tex}
 
 \input{sections/metodologia.tex}
-
+\newpage
 \input{sections/risultati.tex}
 
+\newpage
 \section{Conclusioni}
 \label{sec:conclusioni}
 
 Questa collezione fa schifo. Meta delle query chiedono l'autore che non usiamo. Meta la conferenza che non c'e.
 Le citazioni non sono particolarmente informative. Alcuni abstract mancano. 
 
-\bibliography{references.bib}
+\bibliographystyle{abbrv}
+\bibliography{references}
 
 %In questo paragrafo si possono aggiungere delle osservazioni di carattere
 %generale sugli esperimenti; ad esempio, si pu\`o concludere se un proprio metodo
