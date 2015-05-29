@@ -83,12 +83,28 @@ Per effettuare il calcolo del pagerank abbiamo utilizzato la libreria \texttt{ne
 \subsection{Latent Semantic Analysis}
 \label{sec:lsa}
 
-Qui va il contenuto del laboratorio n. 6.
+\textbf{OBBIETTIVI}: comprensione di Latent Semantic Analysis (LSA), implementazione di LSA e costruzione di una funzione di reperimento che implementi LSA.
+
+\textbf{PROCEDIMENTO}: come funzione di ranking sara' usata la BM25 con relevance feedback esplicito (laboratorio 5) e verra' applicata LSA. 
+L'algoritmo calcolera' quindi la BM25 con relevance feedback esplicito e prendera' in considerazione soltanto i primi $N$ documenti reperiti. Utilizzera' il metodo \texttt{linalg.svd} (appartenente alla libreria \texttt{numpy}) per il calcolo della fattorizzazione della matrice termini-documenti $X$: 
+\[ X = U \Sigma V^{T}. \]\\
+Da questa matrice derivera' la matrice ridotta tenendo in considerazione soltanto $m$ dimensioni. Di seguito effettuera' la proiezione di $\vec{q}$ sullo spazio a dimensione ridotto secondo la formula: 
+\[ \vec{q}_m = \Sigma^{-1}_m U^{T}_m \vec{q}. \]
+
+Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N$ documenti nello spazio ridotto (cioe' le colonne $V_m^{T}$) e la query ridotta $\vec{q}$, riordinera' i risultati di questi $N$ documenti in ordini decrescente e ad essi verranno accodati i restanti documenti calcolati ad inizio algoritmo tramite BM25 con relevance feedback esplicito.
+
 
 \subsection{Hyper-linked Induced Topic Search}
 \label{sec:hits}
 
-Qui va il contenuto del laboratorio n. 7.
+\textbf{OBBIETTIVI}: comprensione di Hyperlinked Induced Topic Search (HITS), implementazione e costruzione di una funzione di reperimento che implementi HITS.
+
+\textbf{PROCEDIMENTO}: l'algoritmo da noi scritto effettuera' il ranking tramite la funzione BM25 (laboratorio 3), attraverso i primi $N$ documenti costruisce il grafo delle citazioni $R_q$. Quest'ultimo verra' espanso per ottenere un grafo allargato $B_q$ sul quale sara' calcolato \textit{HITS}.
+Infine combinera', per i primi $N$ documenti, gli score di BM25 (\texttt{sc}) con i punteggi di authority (\texttt{auth}) e hubbiness (\texttt{hub}) attraverso la formula:
+\[ hits_{score} =  \alpha \cdot sc + \beta \cdot auth + \gamma \cdot hub,\]
+
+Il valore del parametro $\alpha$ varia in [0, 1],  mentre quello di $\beta$ e $\gamma$ puo' variare tra [-1, 1], in quanto si vogliono cogliere possibili influenze negative, mentre i valori di $sc, auth, hub$ vengono normalizzati in [0, 1] prima del calcolo. 
+Infine l'algoritmo riordina in modo decrescente per $hits_score$.
 
 \subsection{Evolution Strategy}
 \label{sec:es}
