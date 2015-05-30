@@ -13,12 +13,12 @@ Fare dei paragrafi per BM25, PageRank, Hits, LSA, ES.
 \subsection{Approccio}
 \label{sec:approccio}
 
-Il nostro scopo e' ottenere un valore di map il piu' elevato possibile. Per calcolarla e verificarne il cambiamento durante le varie versione del codice utilizziamo \texttt{treceval}, esso e' il tool standard usato dalla \"TREC community\" per valutare un'esecuzione ad hoc, dandole il file contenete i risultati e un set standard di risultati giudicati.  
+Il nostro scopo \'e ottenere un valore di map il piu' elevato possibile. Per calcolarla e verificarne il cambiamento durante le varie versione del codice utilizziamo \texttt{treceval}, esso e' il tool standard usato dalla \"TREC community\" per valutare un'esecuzione ad hoc, dandole il file contenete i risultati e un set standard di risultati giudicati.  
 
 Abbiamo optato approccio probabilistico per la risoluzione dei laboratori, poiche' fornisce una formalizzazione piu' pulita di cosa volgiamo che faccia un sistema IR: dare documenti rilevanti agli utenti. 
 Inoltre per via delle nostre conoscenze abbiamo voluto utilizzare il linguaggio Python per dare corpo ai progetti. Inoltre vi sono diverse librerie che implementano molti metodi utili per tale corso e per garantire buone performance al codice: \texttt{numpy} usata per la gestione delle matrici, \texttt{matplotlib} utilizza per effettuare i plot (grafici) dei risultati ottenuti, \texttt{networkx} utilizzata per la creazione e gestione dei grafi.
-Oltre a \texttt{Python} abbiamo utilizzato altri software per il lavoro. E' stato usato \texttt{Git}, e' un sistema di versionamento distribuito, per lo scambio del codice e l'aggiornamente delle diverse versioni di quest'ultimo. Infine \texttt{latex} per la scrittura dei pdf di report.
-Per ogni esercitazioni 'e stato utilizzato un approccio di gruppo. Dopo la prima sessione di laboratorio di ogni esercitazione ci siamo ritrovati per la scrittura del codice, la discussione sui risultati e la stesione del report.
+Oltre a \texttt{Python} abbiamo utilizzato altri software per il lavoro. E' stato usato \texttt{Git}, \'e un sistema di versionamento distribuito, per lo scambio del codice e l'aggiornamente delle diverse versioni di quest'ultimo. Infine \texttt{latex} per la scrittura dei pdf di report.
+Per ogni esercitazioni \'e stato utilizzato un approccio di gruppo. Dopo la prima sessione di laboratorio di ogni esercitazione ci siamo ritrovati per la scrittura del codice, la discussione sui risultati e la stesione del report.
 
 \subsection{Indicizzazione} \label{sec:metodi-di-indic}
 
@@ -39,7 +39,7 @@ L'algoritmo scritto costruisce una dizionario, costituito dalle parole uniche, d
 
 \textbf{Descrizione}: comprensione dei meccanismi di reperimento e costruzione di un primo algoritmo di reperimento
 \textbf{Implementazione}: abbiamo studiato ed utilizzato l'algoritmo di ranking Okapi BM25. Per poterlo implementare necessitiamo della matrice delle frequenze di grandezza \textit{n documenti} X \textit{n parole} e di un array contenente le lunghezze dei vari documenti.
-La nostra funzione di reperimento 'e cosi' composta: per ogni query $Q$ scorrera' la lista dei documenti (cioe' le righe della matrice) e per ognuno di essi scorre i termini della query calcolandone gli score, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
+La nostra funzione di reperimento \'e cosi' composta: per ogni query $Q$ scorrera' la lista dei documenti (cioe' le righe della matrice) e per ognuno di essi scorre i termini della query calcolandone gli score, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
 \begin{algorithmic}
 \State $Q \gets query$
 \ForAll{$doc \in C$} 
@@ -83,8 +83,8 @@ dove $\alpha$ e' un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uni
 Ma poter effettuare questo confronto in modo coerente, entrambe le distribuzioni devono essere ridimensionate, si effettua quindi una normalizzazione in modo da avere valori compresi tra 0 e 1. Per far cio' abbiamo usato la formula:
 
 \[ z_i = \frac{x_i - min(x)}{max(x) - min(x)}, \]
-\\
-Per effettuare il calcolo del pagerank abbiamo utilizzato la libreria \textit{networkx}, essa attraverso il metodo \textit{read\_edgelist} permette la costruzione del grafo delle citazione a partire dalla lista 	di archi. Inoltre dispone del metodo \textit{pagerank} per la computazione del pagerank utilizzando \textit{power iteration} sulla matrice di transizione, tale computazione e' fatta a tempo di indexing e i valori verranno utilizzati a tempo di retrieval.
+
+Per effettuare il calcolo del pagerank abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read\_edgelist} permette la costruzione del grafo delle citazione a partire dalla lista 	di archi. Inoltre dispone del metodo \texttt{pagerank} per la computazione del pagerank utilizzando \texttt{power iteration} sulla matrice di transizione, tale computazione e' fatta a tempo di indexing e i valori verranno utilizzati a tempo di retrieval.
 
 \subsection{Latent Semantic Analysis}
 \label{sec:lsa}
