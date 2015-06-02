@@ -1,9 +1,7 @@
 \section{Metodologia}
 \label{sec:metodologia}
 
-%Spiegare notazione grafo, parametri, usiamo 1 simbolo per indicare gli score. Quando scriviamo una sezione qui sotto 2.x, se ci serve della notazione poi andiamo a metterla qui. 
-%Fare dei paragrafi per BM25, PageRank, Hits, LSA, ES.
-
+In questa sezione verranno descritti in dettaglio l'approccio usato per il lavoro di gruppo e le funzioni di reperimento realizzate.
 
 
 \subsection{Approccio}
@@ -18,18 +16,16 @@ Per ogni esercitazioni \'e stato utilizzato un approccio di gruppo, attraverso d
 
 \subsection{Indicizzazione} \label{sec:metodi-di-indic}
 
-\paragraph{\textbf{Descrizione}}: comprensione dei meccanismi di indicizzazione e costruzione di un algoritmo di indicizzazione.
-Come base di partenza abbiamo tre diversi file contenenti: \begin{enumerate}\item frequenza delle parole stemmate
- \item la stoplist 
- \item le keywords per ogni documento
-  \end{enumerate}
-Vogliamo estrarre i pesi tf-idf dei termini dataci la collezione e produrre in output un file che li contenga, quest'ultimo sara' formattato nel seguente modo: 
-word1  doc\_id  weight
-word2  doc\_id  weight
-...
+\paragraph{\textbf{Descrizione.}} Costruzione di un algoritmo di indicizzazione in grado di costruire delle strutture dati necessarie al reperimento tramite \textsc{bm25}. 
 
-\paragraph{\textbf{Implementazione}}: poiche' le stop words sono gia' state rimosse dalle keywords, ci permettiamo di ignorare la stoplist, inoltre le keywords sono gia' state stemmate quindi possiamo ignorare anche il file che contiene le stemmature.
-L'algoritmo scritto costruisce una dizionario, costituito dalle parole uniche, dopo di che' forma una matrice con numero di colonne pari al numero di documenti e come righe il numero di parole, contenente l'occorrenza, usando il file delle frequenze. Avendo la matrice utilizza la \texttt{TfidfTransformer} del modulo \texttt{scikit-learn} per ottenere una matrice dei pesi tf-idf e salvarla nel file di output.
+\paragraph{\textbf{Implementazione.}}
+Per l'implementazione e' stato utilizzato il file \textit{freq.docid.stem.txt} che contiene le frequenze delle keywords (dopo lo stemming) nei documenti. Poiche' le stop words sono gia' state rimosse da tale file, ignoriamo la stoplist.
+L'algoritmo di indicizzazione utilizza le keywords presenti in tale file per costruire un dizionario delle keywords presenti nella collezione. In seguito scorre sulle righe del file \textit{freq.docid.stem.txt} e costruisce la Document Term Matrix (DTM), una matrice di  dimensione $n_{docs} \times n_{words}$ che contiene in posizione $(i,j)$ il numero di occorrenze del termine $j$ nel documento $i$. Infine salva su file le seguenti strutture:
+\begin{itemize}
+	\item Le lunghezze (numero di termini) dei documenti, necessarie alla normalizzazione sulla lunghezza in \textsc{bm25},
+	\item La DTM normalizzata sui colonne, cioe' una matrice delle frequenze che contiene in posizione $(i,j)$ la frequenza del termine $j$ nel documento $i$,
+	\item Il dizionario contenente le keywords della collezione.
+\end{itemize}
 
 \subsection{Reperimento}
 \label{sec:metodi-di-reper}
