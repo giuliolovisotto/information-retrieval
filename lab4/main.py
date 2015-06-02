@@ -2,6 +2,7 @@ __author__ = 'giulio'
 
 import numpy as np
 import sys
+import time
 
 sys.path.append("./../")
 
@@ -25,7 +26,7 @@ def get_r_i(mat_freq, query_id, query_term):
     a = a[b == int(query_id)]
     a = a[:, 2].astype(int)
     a -= 1
-    mr = np.copy(mat_freq[a, :])
+    mr = mat_freq[a, :]
     r_i = np.count_nonzero(mr[:, int(query_term)])
     return r_i
 
@@ -159,7 +160,7 @@ def retrieve(k1, b, k2, R):
     results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
 
     for pj, (q, lst) in enumerate(queries.iteritems()):
-        p_pseudo(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N, R)
+        p_esplicito(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N, R)
 
     # Parallel(n_jobs=cpu_count())(delayed(p_pseudo)(
     #    freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N
