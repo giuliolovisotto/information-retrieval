@@ -92,7 +92,7 @@ Come funzione di ranking sara' usata la BM25 con relevance feedback esplicito (l
 \[ X = U \Sigma V^{T}. \]\\
 Da questa matrice derivera' la matrice ridotta tenendo in considerazione soltanto $m$ dimensioni. Di seguito effettuera' la proiezione di $\vec{q}$ sullo spazio a dimensione ridotto secondo la formula: 
 \[ \vec{q}_m = \Sigma^{-1}_m U^{T}_m \vec{q}. \]
-Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N$ documenti nello spazio ridotto (cioe' le colonne $V^{T}$) e la query ridotta $\vec{q}$, riordinera' i risultati di questi $N$ documenti in ordini decrescente e ad essi verranno accodati i restanti documenti calcolati ad inizio algoritmo tramite BM25 con relevance feedback esplicito.
+Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N$ documenti nello spazio ridotto (cioe' le colonne $V_m^{T}$) e la query ridotta $\vec{q}$, riordinera' i risultati di questi $N$ documenti in ordini decrescente e ad essi verranno accodati i restanti documenti calcolati ad inizio algoritmo tramite BM25 con relevance feedback esplicito.
 
 
 \subsection{Hyper-linked Induced Topic Search}
