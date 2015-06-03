@@ -7,7 +7,7 @@ In questa sezione verranno descritti in dettaglio l'approccio usato per il lavor
 \subsection{Approccio}
 \label{sec:approccio}
 
-Il nostro scopo \'e ottenere un valore di Mean Average Precision (\textsc{MAP}) il piu' elevato possibile. Per calcolarla e verificarne il cambiamento durante le varie versione del codice utilizziamo \texttt{trec\_eval}, esso e' il tool standard usato dalla \"TREC community\" per valutare un'esecuzione ad hoc, dandole il file contenete i risultati e un set standard di risultati giudicati.  
+Il nostro scopo \'e ottenere un valore di Mean Average Precision (\textsc{MAP}) il piu' elevato possibile. Per calcolarla e verificarne il cambiamento durante le varie versioni del codice utilizziamo \texttt{trec\_eval}, esso e' il tool standard usato dalla "TREC community" per valutare un'esecuzione ad hoc, dandole il file contenete i risultati e un set standard di risultati giudicati.  
 
 Abbiamo optato approccio probabilistico con \texttt{Okapi BM25} per la risoluzione dei laboratori, poiche' \'e un buon modello ed \'e stato usato con successo da esperti nel campo.  
 Abbiamo utilizzato il linguaggio Python per implementare il codice, utilizzando diverse librerie contenenti metodi, a noi, utili: \texttt{numpy} gestione delle matrici, \texttt{matplotlib} gestione dei plot (grafici), \texttt{networkx} gestione dei grafi.
@@ -94,10 +94,10 @@ Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N
 \subsection{Hyper-linked Induced Topic Search}
 \label{sec:hits}
 
-\paragraph{\textbf{Descrizione}}: comprensione di Hyperlinked Induced Topic Search (HITS), implementazione e costruzione di una funzione di reperimento che implementi HITS.
+\paragraph{\textbf{Descrizione}}: comprensione di Hyperlinked Induced Topic Search (\textsc{HITS}), implementazione e costruzione di una funzione di reperimento che implementi \textsc{HITS}.
 
-\paragraph{\textbf{Implementazione}}: l'algoritmo da noi scritto effettuera' il ranking tramite la funzione BM25 (laboratorio 3), attraverso i primi $N$ documenti costruisce il grafo delle citazioni $R_q$. Quest'ultimo verra' espanso per ottenere un grafo allargato $B_q$ sul quale sara' calcolato \textit{HITS}.
-In figura \ref{fig:unodue} \'e rappresentata la relazione tra il grafo radice $R_q$ e il grafo allargato $B_q$ per capirne le dinamiche dell'espansione (i grafi si riferiscono alla query $56$).
+\paragraph{\textbf{Implementazione}}: l'algoritmo da noi scritto effettua il ranking tramite la funzione BM25 (laboratorio 3 - sezione \ref{sec:metodi-di-reper}), utilizzando i primi $N$ documenti costruisce il corrispondente grafo delle citazioni $R_q$. Quest'ultimo viene espanso per ottenere un grafo allargato $B_q$ sul quale calcolare \textsc{HITS}.
+In figura \ref{fig:unodue} \'e rappresentata la relazione tra il grafo radice $R_q$ e il grafo allargato $B_q$ per capirne le dinamiche di espansione (i grafi si riferiscono alla query $56$).
 \begin{figure}
 	\centering
 	\begin{subfigure}{.5\textwidth}
@@ -112,14 +112,14 @@ In figura \ref{fig:unodue} \'e rappresentata la relazione tra il grafo radice $R
 		\caption{Grafo base ($B_{56}$).}
 		\label{fig:due}
 	\end{subfigure}
-	\caption{Grafi ottenuti applicando \textsc{hits} sui top $N=50$ documenti per la query $56$.}
+	\caption{Grafi ottenuti applicando \textsc{HITS} sui top $N=50$ documenti per la query $56$.}
 	\label{fig:unodue}
 \end{figure}
 
-Infine combinera', per i primi $N$ documenti, gli score di BM25 (\texttt{sc}) con i punteggi di authority (\texttt{auth}) e hubbiness (\texttt{hub}) attraverso la formula:
+Abbiamo poi combinato, per i primi $N$ documenti, gli score di BM25 (\textit{sc}) con i punteggi di authority (\texttt{auth}) e hubbiness (\texttt{hub}) attraverso la formula:
 \[ hits_{score} =  \alpha \cdot sc + \beta \cdot auth + \gamma \cdot hub,\]
-Il valore del parametro $\alpha$ varia in [0, 1],  mentre quello di $\beta$ e $\gamma$ puo' variare tra [-1, 1], in quanto si vogliono cogliere possibili influenze negative, mentre i valori di $sc, auth, hub$ vengono normalizzati in [0, 1] prima del calcolo. 
-Infine l'algoritmo riordina in modo decrescente per $hits_score$.
+Il valore del parametro $\alpha$ varia in [0, 1],  mentre quello di $\beta$ e $\gamma$ puo' variare tra [-1, 1], in quanto si vogliono cogliere possibili influenze negative. I valori di $sc, auth, hub$ vengono normalizzati nell'intervallo [0, 1] prima del calcolo. 
+Infine l'algoritmo riordina i documenti reperiti per valori decrescenti di $hits_{score}$.
 
 
 \subsection{Evolution Strategy}
@@ -127,7 +127,7 @@ Infine l'algoritmo riordina in modo decrescente per $hits_score$.
 
 Per ottimizzare gli algoritmi di reperimento abbiamo scelto di utilizzare un Evolution Strategy~\cite{back1996evolutionary} (ES) che e' una tecnica di ottimizzazione basata sui principi che regolano l'evoluzione. Tecniche di questo tipo sono piu' robuste rispetto ai metodi di ricerca lineare per quanto riguardo i massimi locali. Il loro svantaggio consiste nel maggior numero di valutazioni richieste. Nel nostro contesto una valutazione impiega circa 3-15 secondi a seconda della complessita' del metodo di reperimento. Cio' permette di eseguire l'algoritmo di ottimizzazione in un tempo accettabile.
 
-I parametri che abbiamo scelto di ottimizzare cambiano in base alla funzione di reperimento (e quindi del laboratorio). Per il laboratorio 3, 4, 6 abbiamo scelto di ottimizzare $k_1, b$. Ignoriamo $k_2$ in quando abbiamo visto che non ci sono termini ripetuti nelle query e quindi tale termine non influisce sul punteggio. Per il laboratorio 5 ottimizziamo $k_1, b, \alpha$. Per il laboratorio 7 ottimizziamo $k_1, b, \alpha, \beta, \gamma$. Per lo pseudo relevance feedback del laboratorio 4 il numero di documenti considerati rilevanti $R = 50$, mentre per l'\textsc{lsa} del laboratorio 6 il numero di documenti da riordinare $N = 30$, e il numero di dimensioni per la riduzione $m=2$ (tali parametri sono interi e non si prestano ad un ottimizzazione tramite ES). La funzione da massimizzare e' la Mean Average Precision.
+I parametri che abbiamo scelto di ottimizzare cambiano in base alla funzione di reperimento (e quindi del laboratorio). Per il laboratorio 3, 4, 6 abbiamo scelto di ottimizzare $k_1, b$. Ignoriamo $k_2$ in quando abbiamo visto che non ci sono termini ripetuti nelle query e quindi tale termine non influisce sul punteggio. Per il laboratorio 5 ottimizziamo $k_1, b, \alpha$. Per il laboratorio 7 ottimizziamo $k_1, b, \alpha, \beta, \gamma$. Per lo pseudo relevance feedback del laboratorio 4 il numero di documenti considerati rilevanti $R = 50$, mentre per l'\textsc{lsa} del laboratorio 6 il numero di documenti da riordinare $N = 30$, e il numero di dimensioni per la riduzione $m=2$ (tali parametri sono interi e non si prestano ad un'ottimizzazione tramite ES). La funzione da massimizzare \'e la Mean Average Precision.
 
 Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione della funzione di reperimento dei laboratori. 
 \begin{figure*}
@@ -204,7 +204,7 @@ metodo & parametri ottimizzati & MAP \\
 \label{tab:es}
 \end{table}
 
-Grazie all'ES si e' ottenuto un notevole miglioramento rispetto alla prima versione dove i parametri sono stati scelti empiricamente, e la MAP si aggirava attorno al $0.25$. Inoltre dai grafici si puo' notare come l'algoritmo di ottimizzazione sia molto robusto, dato che dopo $\sim{300}$ valutazioni e' gia' molto vicino alla configurazione ottima. I risultati dell'ottimizzazione vengono discussi in Sezione \ref{sec:risult-sper}.
+Grazie all'ES si \'e ottenuto un notevole miglioramento rispetto alla prima versione dove i parametri sono stati scelti empiricamente, e il valore di MAP si aggirava attorno al $0.25$. Inoltre dai grafici si puo' notare come l'algoritmo di ottimizzazione sia molto robusto, dato che dopo $\sim{300}$ valutazioni \'e gia' molto vicino alla configurazione ottima. I risultati dell'ottimizzazione vengono discussi in Sezione \ref{sec:risult-sper}.
 
 \subsection{Altri metodi}
 tipo lucene
