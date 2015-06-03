@@ -31,37 +31,45 @@ L'algoritmo di indicizzazione utilizza le keywords presenti in tale file per cos
 \label{sec:metodi-di-reper}
 
 \paragraph{\textbf{Descrizione}}: comprensione dei meccanismi di reperimento e costruzione di un primo algoritmo di reperimento.
-Abbiamo studiato ed utilizzato l'algoritmo di ranking \textsc{Okapi BM25}, per la sua implementazione useremo anche la Document Term Matrix (\textit{n\_words} X \textit{n\_documents}) e un array contenente le lunghezze dei vari documenti.
+Implementeremo l'algoritmo \textsc{BM25}, che presa in input una query restituira' una lista ordinata di documenti con i relativi $score_{bm25}$.
 
-\paragraph{\textbf{Implementazione}}: la nostra funzione di reperimento sara' cosi' composta: per ogni query $Q$ scorrera' la lista dei documenti (cioe' le righe della matrice) e per ognuno di essi scorre i termini della query calcolandone gli score, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
+\paragraph{\textbf{Implementazione}}: 
+Per effettuare l'implementazione useremo le tre strutture ottenute dall'indicizzazione e un dizionario che contiene le parole stemmate per ogni query creato utilizzando il file \textit{query-stem.txt}. Per ogni query $Q$, l'algoritmo effettuera' il retrieval scorrendo la lista degli stem $qw$ della query e per ogniuna di esse interroga il dizionario per ottenere l'indice della posizione occupata nella matrice delle frequenze. Cosi' facendo \'e in grado di ottenere le frequenze di ogni parola per ogni documento e calcolare lo score di quest'ultimo, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
 \begin{algorithmic}
 \State $Q \gets query$
-\ForAll{$doc \in C$} 
-    \State $score\gets 0$
-    \ForAll{$qw \in Q$}
-        \State $score \gets score + f_{bm25}(doc, qw)$
-    \EndFor
+\State $D \gets dictionary$
+\State $C \gets documents$
+\State $F \gets frequency matrix$
+\ForAll{$qw \in Q$}
+	\State $index\_of\_words \gets extract(D,qw)$
+	\ForAll{$doc \in C$}
+		\ForAll{$id \in index\_of\_words$}
+			\State $f_{bm25} \gets extract\_frequency(F,doc,id)$
+		\EndFor
+		\State $score_{bm25} \gets score_{bm25} + f_{bm25}$
+	\EndFor
 \EndFor\\
 \Return top $k$ scoring documents
 \end{algorithmic}
-Tale algoritmo ha complessita' $O(n \cdot m)$, dove $n$ e' il numero di documenti nella collezione ed $m$ e' il numero di descrittori nell'interrogazione (query) $Q$.
+Tale algoritmo ha complessita' $O(n \cdot m)$, dove $n$ e' il numero di documenti nella collezione ed $m$ e' il numero di descrittori nell'interrogazione (query) $Q$, dallo pseudo codice tale complessita' non \'e chiara ma nell'implementazione di tale algoritmo la ricerca degli $id$ \'e stata fatta utilizzando delle funzioni proprie di Python il che' le rende ininfluenti sul calcolo della complessita'. 
 
 \subsection{Relevance Feedback}
 \label{sec:relevance-feedback}
 
-\paragraph{\textbf{Descrizione}}: comprensione del Relevance Feedback (\textsc{RF}) e scrittura di una funzione di reperimento equipaggiata con \textit{RF esplicito} e una seconda con \textit{RF pseudo}.
-Durante il calcolo di \textsc{BM25} terremo conto dei giudizi di rilevanza, per quanto riguarda il caso di feedback esplicito verra' utilizzato il file \textit{qrels-treceval.txt}.
+\paragraph{\textbf{Descrizione}}: comprensione del Relevance Feedback (\textsc{RF}) e scrittura di una funzione di reperimento equipaggiata con \textsc{RF esplicito} e una seconda con \textsc{RF pseudo}.
+Durante il calcolo di \textsc{BM25} terremo conto dei giudizi di rilevanza.
 BM25:
 \[ \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i}. \]
-La formula di BM25 tiene gia' in considerazione i giudizi di rilevanza, infatti $R$ rappresenta il numero di documenti rilevanti per la query presa in considerazione, mentre il valore di $r_i$ rappresenta il numero di documenti rilevanti che contengono il termine $i$.
+La formula di BM25 tiene gia' in considerazione i giudizi di rilevanza, infatti $R$ rappresenta il numero di documenti rilevanti per la query presa in considerazione, mentre il valore di $r_i$ rappresenta il numero di documenti rilevanti che contengono il termine $i$, quindi costruiremo un algoritmo in grado di calcolarli.
 
-\paragraph{\textbf{Implementazione}}: il procedimento si suddivide in due passi sia per il calcolo del \textit{Relevance Feedback Esplicito} sia per \textit{Pseudo Relevance Feedback}.
-Il primo passo e' comune e consiste nel calcolo del ranking senza informazioni di rilevanza, il secondo passo differisce:
-\begin{enumerate}
-\item \textbf{Relevance Feedback Esplicito}: tra i primi $N$ documenti verranno estratti quelli ritenuti rilevanti utilizzando il file \textit{qrels-treceval.txt}, da tali documenti verranno estratti i valori di $R$ ed $r_i$ che saranno usati per la seconda esecuzione dell'algoritmo.
-\item \textbf{Pseudo Relevance Feedback}: verranno considerati rilevanti i primi $N$ documenti, con tali documenti verranno trovati i valori di $R$ ed $r_i$ utilizzati per la seconda esecuzione dell'algoritmo.
-\end{enumerate}
-Per poter effettuare il calcolo dei valori di $R$ ed $r_i$ l'algoritmo utilizzera' le frequenze di occorrenza delle parole per ogni documento (contenute in una matrice di grandezza $n_docs$ X $n_words$). Durante il reperimento per ogni documento e per ogni termine $i$ l'algoritmo calcola il numero di documenti considerati rilevanti che lo contengono e salvera' tale valore in una mappa $map$ (mappa $i$->$r_i$), con questa mappa l'algoritmo calcola il ranking rispetto ai valori di $R$ ed $r_i$.
+\paragraph{\textbf{Implementazione}}: 
+L'implementazione dei due algoritmo \'e differente, poiche' il calcolo dello \textsc{Pseudo RF} richiede due passi, mentre ne basta uno solo per \textit{RF Esplicito}.
+\begin{itemize}
+\item \textsc{RF Esplicito}: verra' utilizzato il file \textit{qrels-treceval.txt} per estrarre i valori di $R$ ed $r_i$, i quali saranno utilizzati all'interno del calcolo di bm25.
+\item \textsc{Pseudo RF}: il primo passo consiste nel caclolo del ranking senza informazioni di rilevanza, verranno poi considerati rilevanti i primi $N$ documenti, con tali documenti verranno trovati i valori di $R$ ed $r_i$ utilizzati per la seconda esecuzione dell'algoritmo.
+\end{itemize}
+Per poter effettuare il calcolo dei valori di $R$ ed $r_i$ l'algoritmo utilizzera' la matrice che contiene le frequenze delle perole di ogni documento (sezione 2.2). Durante il reperimento per ogni documento e per ogni termine $i$ l'algoritmo calcola il numero di documenti considerati rilevanti che lo contengono e salvera' tale valore in una mappa $map$ (mappa $i$->$r_i$), con questa mappa l'algoritmo calcola il ranking rispetto ai valori di $R$ ed $r_i$.
+
 
 
 \subsection{PageRank}
