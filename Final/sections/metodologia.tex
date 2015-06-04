@@ -60,30 +60,28 @@ Tale algoritmo ha complessita' $O(n \cdot m)$, dove $n$ e' il numero di document
 Durante il calcolo di \textsc{BM25} terremo conto dei giudizi di rilevanza.
 BM25:
 \[ \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i}. \]
-La formula di BM25 tiene gia' in considerazione i giudizi di rilevanza, infatti $R$ rappresenta il numero di documenti rilevanti per la query presa in considerazione, mentre il valore di $r_i$ rappresenta il numero di documenti rilevanti che contengono il termine $i$, quindi costruiremo un algoritmo in grado di calcolarli.
+Essa tiene gia' in considerazione i giudizi di rilevanza, infatti $R$ rappresenta il numero di documenti rilevanti per la query presa in considerazione, mentre il valore di $r_i$ rappresenta il numero di documenti rilevanti che contengono il termine $i$, quindi costruiremo un algoritmo in grado di calcolarli.
 
 \paragraph{\textbf{Implementazione}}: 
-L'implementazione dei due algoritmo \'e differente, poiche' il calcolo dello \textsc{Pseudo RF} richiede due passi, mentre ne basta uno solo per \textit{RF Esplicito}.
+L'implementazione dei delle due tipologie di \textsc{RF} \'e differente, poiche' il calcolo dello \textsc{Pseudo RF} richiede due passi, mentre ne basta uno solo per \textit{RF Esplicito}.
 \begin{itemize}
-\item \textsc{RF Esplicito}: verra' utilizzato il file \textit{qrels-treceval.txt} per estrarre i valori di $R$ ed $r_i$, i quali saranno utilizzati all'interno del calcolo di bm25.
+\item \textsc{RF Esplicito}: durante il settaggio dei parametri usati da bm25 verra' utilizzato il file \textit{qrels-treceval.txt} per estrarre i rispettivi valori di $R$ ed $r_i$, cosi' da poter effettuare il corretto calcolo descritto dalla funzione precedente.
 \item \textsc{Pseudo RF}: il primo passo consiste nel caclolo del ranking senza informazioni di rilevanza, verranno poi considerati rilevanti i primi $N$ documenti, con tali documenti verranno trovati i valori di $R$ ed $r_i$ utilizzati per la seconda esecuzione dell'algoritmo.
 \end{itemize}
 Per poter effettuare il calcolo dei valori di $R$ ed $r_i$ l'algoritmo utilizzera' la matrice che contiene le frequenze delle perole di ogni documento (sezione 2.2). Durante il reperimento per ogni documento e per ogni termine $i$ l'algoritmo calcola il numero di documenti considerati rilevanti che lo contengono e salvera' tale valore in una mappa $map$ (mappa $i$->$r_i$), con questa mappa l'algoritmo calcola il ranking rispetto ai valori di $R$ ed $r_i$.
-
-
 
 \subsection{PageRank}
 \label{sec:pagerank}
 
 \paragraph{\textbf{Descrizione}}: comprensione di PageRank, implementazione di PageRank e scrittura di una funzione di reperimento che lo integri.
-la funzione di reperimento combinera' gli score di BM25 ($rk$) con il valore del pagerank ($pr$) attraverso la seguente formula:
+la funzione di reperimento combinera' gli score di \textsc{BM25} ($rk$) con il valore del \textsc{pagerank} ($pr$) attraverso la seguente formula:
 \[ score =  \alpha \cdot rk + (1-\alpha) \cdot pr,\]
 dove $\alpha$ e' un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uniformemente da pagerank a BM25.
 Ma poter effettuare questo confronto in modo coerente, entrambe le distribuzioni devono essere ridimensionate, si effettua quindi una normalizzazione in modo da avere valori compresi tra 0 e 1. Per far cio' abbiamo usato la formula:
 \[ z_i = \frac{x_i - min(x)}{max(x) - min(x)}, \]
 
 
-\paragraph{\textbf{Implementazione}}: per effettuare il calcolo del pagerank abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read\_edgelist} permette la costruzione del grafo delle citazioni a partire dalla lista di archi. Inoltre dispone del metodo \texttt{pagerank} per la computazione del pagerank utilizzando \texttt{power iteration} sulla matrice di transizione, tale computazione e' fatta a tempo di indexing e i valori verranno utilizzati a tempo di retrieval.
+\paragraph{\textbf{Implementazione}}: per effettuare il calcolo del pagerank abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read\_edgelist} permette la costruzione del grafo delle citazioni a partire dalla lista di archi. Inoltre dispone del metodo \texttt{pagerank} per la computazione del pagerank utilizzando \textsc{power iteration} sulla matrice di transizione, tale computazione e' fatta a tempo di indexing e i valori verranno utilizzati a tempo di retrieval.
 
 \subsection{Latent Semantic Analysis}
 \label{sec:lsa}
