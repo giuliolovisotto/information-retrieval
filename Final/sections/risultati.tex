@@ -79,7 +79,7 @@ Dai risultati riportati si puo' notare che gli unici metodi che hanno portato un
 
 \subsection{Efficienza}
 \label{sec:efficienza}
-Figura \ref{fig:efficiency} riporta i tempi di esecuzione delle varie funzioni di reperimento, per l'intero set di queries. I parametri utilizzati sono quelli riportati in Tabella \ref{tab:map}. Per ogni metodo si presume che l'indicizzazione sia gia' avvenuta, e inoltre tutte le misure calcolabili offline (a tempo di indicizzazione) siano gia' state computate (e.g. il dizionario, le lunghezze dei documenti, la document-term matrix, il valore di pagerank). Come si puo' vedere, in particolare grazie alla \textit{vectorization} usata per effettuare il calcolo di \textsc{bm25}, il tempo di esecuzione del reperimento \textsc{baseline} e' molto breve, poco piu' di un secondo. 
+Figura \ref{fig:efficiency} riporta i tempi di esecuzione delle varie funzioni di reperimento. I parametri utilizzati sono quelli riportati in Tabella \ref{tab:map}. Per ogni metodo si presume che l'indicizzazione sia gia' avvenuta, e inoltre tutte le misure calcolabili offline (a tempo di indicizzazione) siano gia' state computate (e.g. il dizionario, le lunghezze dei documenti, la document-term matrix, il valore di pagerank). Come si puo' vedere, in particolare grazie alla \textit{vectorization} usata per effettuare il calcolo di \textsc{bm25}, il tempo di esecuzione del reperimento \textsc{baseline} e' molto breve, poco piu' di un secondo. 
 \begin{figure}[htpb]
 	\begin{center}
 		\includegraphics[width=0.75\textwidth]{figures/efficiency.png}

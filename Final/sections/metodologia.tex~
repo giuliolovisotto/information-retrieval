@@ -36,7 +36,7 @@ Comprensione dei meccanismi di reperimento e costruzione di un primo algoritmo d
 Implementeremo l'algoritmo \textsc{BM25}, che presa in input una query restituira' una lista ordinata di documenti con i relativi $score_{bm25}$.
 
 \paragraph{\textbf{Implementazione}}
-Per effettuare l'implementazione useremo le tre strutture ottenute dall'indicizzazione (laboratorio 2 - sottosezione \ref{sec:metodi-di-indic}) e un dizionario che contiene le parole stemmate per ogni query creato utilizzando il file \textit{query-stem.txt}. Per ogni query $Q$, l'algoritmo effettuera' il retrieval scorrendo la lista degli stem $qw$ della query e per ogniuna di esse interroga il dizionario per ottenere l'indice della posizione occupata nella matrice delle frequenze. Cosi' facendo \'e in grado di ottenere le frequenze di ogni parola per ogni documento e calcolare lo score di quest'ultimo, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
+Per effettuare l'implementazione useremo le tre strutture ottenute dall'indicizzazione (sottosezione \ref{sec:metodi-di-indic}) e un dizionario che contiene le parole stemmate per ogni query creato utilizzando il file \textit{query-stem.txt}. Per ogni query $Q$, l'algoritmo effettuera' il retrieval scorrendo la lista degli stem $qw$ della query e per ogniuna di esse interroga il dizionario per ottenere l'indice della posizione occupata nella matrice delle frequenze. Cosi' facendo \'e in grado di ottenere le frequenze di ogni parola per ogni documento e calcolare lo score di quest'ultimo, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
 \begin{algorithmic}
 \State $Q \gets query$
 \State $D \gets dictionary$

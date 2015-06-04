@@ -9,7 +9,7 @@ I progetti svolti nelle lezioni di laboratorio prevedono l'utilizzo di una colle
 La collezione di documenti \'e stata fornita come un unico file xml dove ogni nodo di documento contiene un identificativo, un titolo e altre informazioni come abstract, autori, luogo, riferimenti e citazioni ad altri documenti appartenenti alla collezione. Per il reperimento di documenti utili ad una query vengono considerati titolo ed abstract di ogni documento.
 Sono stati forniti altri file oltre a quello contenente i documenti, questi contengono le parole chiave sotto forma di stem, un insieme di query e l'insieme delle citazioni tra i documenti.
 Grazie all'insieme delle citazioni \'e stato possibile sperimentare nella funzione di reperimento l'uso di \textsc{pagerank} e \textsc{HITS} che considerano il grafo delle citazioni per valutare la rilevanza di un documento.\\
-Inoltre \'e stato introdotto un Evolution Strategy (sottosezione \ref{sec:es}) per ottimizzare gli algoritmi di riperimento implementati.
+Inoltre \'e stato introdotto un Evolution Strategy (sottosezione \ref{sec:es}) per ottimizzare gli algoritmi di riperimento.
 \textit{pu\'o andare come intro ad ES?}
 \subsection{Organizzazione}
 Il resto del documento \'e organizzato come segue.\\
