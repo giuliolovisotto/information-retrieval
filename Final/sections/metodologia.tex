@@ -86,15 +86,17 @@ Ma poter effettuare questo confronto in modo coerente, entrambe le distribuzioni
 \subsection{Latent Semantic Analysis}
 \label{sec:lsa}
 
-\paragraph{\textbf{Descrizione}}: comprensione di Latent Semantic Analysis (LSA), implementazione di LSA e costruzione di una funzione di reperimento che implementi LSA.
-Come funzione di ranking sara' usata la BM25 con relevance feedback esplicito (laboratorio 5) e verra' applicata LSA. 
+\paragraph{\textbf{Descrizione}}: comprensione di Latent Semantic Analysis (\textsc{LSA}), implementazione di LSA e costruzione di una funzione di reperimento che implementi LSA.
+Come funzione di ranking sara' usata la BM25 (laboratorio 3) e verra' applicato LSA. 
 
 
-\paragraph{\textbf{Implementazione}}: l'algoritmo calcolera' quindi la BM25 con relevance feedback esplicito e prendera' in considerazione soltanto i primi $N$ documenti reperiti. Utilizzera' il metodo \texttt{linalg.svd} (appartenente alla libreria \texttt{numpy}) per il calcolo della fattorizzazione della matrice termini-documenti $X$: 
+\paragraph{\textbf{Implementazione}}: 
+L'algoritmo calcolera' quindi la BM25 e prendera' in considerazione soltanto i primi $N$ documenti reperiti. Utilizzera' il metodo \texttt{linalg.svd} (appartenente alla libreria \texttt{numpy}) per il calcolo della fattorizzazione della matrice termini-documenti $X$: 
 \[ X = U \Sigma V^{T}. \]\\
-Da questa matrice derivera' la matrice ridotta tenendo in considerazione soltanto $m$ dimensioni. Di seguito effettuera' la proiezione di $\vec{q}$ sullo spazio a dimensione ridotto secondo la formula: 
+Effettuera' un altro ridemensionamento considerando soltanto $m$ dimensioni, ottenendo quindi la matrice ridotta: \[ X_m = U_m \Sigma_m V^{T}_m. \]\\
+Di seguito effettuera' la proiezione di $\vec{q}$ sullo spazio a dimensione ridotto secondo la formula: 
 \[ \vec{q}_m = \Sigma^{-1}_m U^{T}_m \vec{q}. \]
-Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N$ documenti nello spazio ridotto (cioe' le colonne $V^{T}$) e la query ridotta $\vec{q}$, riordinera' i risultati di questi $N$ documenti in ordini decrescente e ad essi verranno accodati i restanti documenti calcolati ad inizio algoritmo tramite BM25 con relevance feedback esplicito.
+Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N$ documenti nello spazio ridotto (cioe' le colonne $V^{T}_m$) e la query ridotta $\vec{q}$, riordinera' i risultati di questi $N$ documenti in ordine decrescente e ad essi verranno accodati i restanti documenti calcolati ad inizio algoritmo tramite il metodo \textsc{bm25}.
 
 
 \subsection{Hyper-linked Induced Topic Search}
