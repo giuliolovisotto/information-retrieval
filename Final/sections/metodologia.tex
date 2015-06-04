@@ -24,7 +24,7 @@ Per l'implementazione e' stato utilizzato il file \textit{freq.docid.stem.txt} c
 L'algoritmo di indicizzazione utilizza le keywords presenti in tale file per costruire un dizionario delle keywords presenti nella collezione. In seguito scorre sulle righe del file \textit{freq.docid.stem.txt} e costruisce la Document Term Matrix (DTM), una matrice di  dimensione $n_{docs} \times n_{words}$ che contiene in posizione $(i,j)$ il numero di occorrenze del termine $j$ nel documento $i$. Infine salva su file le seguenti strutture:
 \begin{itemize}
 	\item Le lunghezze (numero di termini) dei documenti, necessarie alla normalizzazione sulla lunghezza in \textsc{bm25},
-	\item La DTM normalizzata sui colonne, cioe' una matrice delle frequenze che contiene in posizione $(i,j)$ la frequenza del termine $j$ nel documento $i$,
+	\item La DTM normalizzata sulle colonne, cioe' una matrice delle frequenze che contiene in posizione $(i,j)$ la frequenza del termine $j$ nel documento $i$,
 	\item Il dizionario contenente le keywords della collezione.
 \end{itemize}
 
@@ -33,10 +33,10 @@ L'algoritmo di indicizzazione utilizza le keywords presenti in tale file per cos
 
 \paragraph{\textbf{Descrizione}}
 Comprensione dei meccanismi di reperimento e costruzione di un primo algoritmo di reperimento.
-Implementeremo l'algoritmo \textsc{BM25}, che presa in input una query restituira' una lista ordinata di documenti con i relativi $score_{bm25}$.
+Realizzazione dell'algoritmo \textsc{BM25}, che riceve in input una query e restituisce una lista ordinata di documenti con i relativi $score_{bm25}$.
 
 \paragraph{\textbf{Implementazione}}
-Per effettuare l'implementazione useremo le tre strutture ottenute dall'indicizzazione (laboratorio 2 - sottosezione \ref{sec:metodi-di-indic}) e un dizionario che contiene le parole stemmate per ogni query creato utilizzando il file \textit{query-stem.txt}. Per ogni query $Q$, l'algoritmo effettuera' il retrieval scorrendo la lista degli stem $qw$ della query e per ogniuna di esse interroga il dizionario per ottenere l'indice della posizione occupata nella matrice delle frequenze. Cosi' facendo \'e in grado di ottenere le frequenze di ogni parola per ogni documento e calcolare lo score di quest'ultimo, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
+Per effettuare l'implementazione abbiamo utilizzato le tre strutture ottenute dall'indicizzazione (laboratorio 2 - sottosezione \ref{sec:metodi-di-indic}) e un dizionario che contiene le parole stemmate per ogni query creato utilizzando il file \textit{query-stem.txt}. Per ogni query $Q$, l'algoritmo effettua il retrieval scorrendo la lista degli stem $qw$ della query e per ognuna di esse interroga il dizionario per ottenere l'indice della posizione occupata nella matrice delle frequenze. Cosi' facendo \'e in grado di ottenere le frequenze di ogni parola per ogni documento e calcolare lo score di quest'ultimo, infine ordina in modo decrescente i documenti aventi punteggi maggiori di zero.
 \begin{algorithmic}
 \State $Q \gets query$
 \State $D \gets dictionary$
@@ -53,56 +53,56 @@ Per effettuare l'implementazione useremo le tre strutture ottenute dall'indicizz
 \EndFor\\
 \Return top $k$ scoring documents
 \end{algorithmic}
-Tale algoritmo ha complessita' $O(n \cdot m)$, dove $n$ e' il numero di documenti nella collezione ed $m$ e' il numero di descrittori nell'interrogazione (query) $Q$, dallo pseudo codice tale complessita' non \'e chiara ma nell'implementazione di tale algoritmo la ricerca degli $id$ \'e stata fatta utilizzando delle funzioni proprie di Python il che' le rende ininfluenti sul calcolo della complessita'. 
+Tale algoritmo ha complessita' $O(n \cdot m)$, dove $n$ \'e il numero di documenti nella collezione ed $m$ \'e il numero di descrittori nell'interrogazione (query) $Q$, dallo pseudo codice tale complessita' non \'e chiara ma nell'implementazione di tale algoritmo la ricerca degli $id$ \'e stata fatta utilizzando delle funzioni proprie di Python il che' le rende ininfluenti sul calcolo della complessita'. 
 
 \subsection{Relevance Feedback}
 \label{sec:relevance-feedback}
 
 \paragraph{\textbf{Descrizione}}
 Comprensione del Relevance Feedback (\textsc{RF}) e scrittura di una funzione di reperimento equipaggiata con \textsc{RF esplicito} e una seconda con \textsc{RF pseudo}.
-Durante il calcolo di \textsc{BM25} terremo conto dei giudizi di rilevanza.
+Durante il calcolo di \textsc{BM25} abbiamo tenuto conto dei giudizi di rilevanza.
 BM25:
 \[ \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i}. \]
-Essa tiene gia' in considerazione i giudizi di rilevanza, infatti $R$ rappresenta il numero di documenti rilevanti per la query presa in considerazione, mentre il valore di $r_i$ rappresenta il numero di documenti rilevanti che contengono il termine $i$, quindi costruiremo un algoritmo in grado di calcolarli.
+Essa tiene gia' in considerazione i giudizi di rilevanza, infatti $R$ rappresenta il numero di documenti rilevanti per la query presa in considerazione, mentre il valore di $r_i$ rappresenta il numero di documenti rilevanti che contengono il termine $i$, quindi abbiamo costruito un algoritmo in grado di calcolarli.
 
 \paragraph{\textbf{Implementazione}} 
-L'implementazione dei delle due tipologie di \textsc{RF} \'e differente, poiche' il calcolo dello \textsc{Pseudo RF} richiede due passi, mentre ne basta uno solo per \textit{RF Esplicito}.
+L'implementazione delle due tipologie di \textsc{RF} \'e differente, poiche' il calcolo dello \textsc{Pseudo RF} richiede due passi, mentre ne basta uno solo per \textit{RF Esplicito}.
 \begin{itemize}
-\item \textsc{RF Esplicito}: durante il settaggio dei parametri usati da bm25 verra' utilizzato il file \textit{qrels-treceval.txt} per estrarre i rispettivi valori di $R$ ed $r_i$, cosi' da poter effettuare il corretto calcolo descritto dalla funzione precedente.
-\item \textsc{Pseudo RF}: il primo passo consiste nel caclolo del ranking senza informazioni di rilevanza, verranno poi considerati rilevanti i primi $N$ documenti, con tali documenti verranno trovati i valori di $R$ ed $r_i$ utilizzati per la seconda esecuzione dell'algoritmo.
+\item \textsc{RF Esplicito}: durante il settaggio dei parametri usati da \textsc{BM25} abbiamo utilizzato il file \textit{qrels-treceval.txt} per estrarre i rispettivi valori di $R$ ed $r_i$, cosi' da poter effettuare il corretto calcolo descritto dalla funzione precedente.
+\item \textsc{Pseudo RF}: il primo passo consiste nel calcolo del ranking senza informazioni di rilevanza, verranno poi considerati rilevanti i primi $N$ documenti; con tali documenti verranno trovati i valori di $R$ ed $r_i$ utilizzati per la seconda esecuzione dell'algoritmo.
 \end{itemize}
-Per poter effettuare il calcolo dei valori di $R$ ed $r_i$ l'algoritmo utilizzera' la matrice che contiene le frequenze delle perole di ogni documento (sezione 2.2). Durante il reperimento per ogni documento e per ogni termine $i$ l'algoritmo calcola il numero di documenti considerati rilevanti che lo contengono e salvera' tale valore in una mappa $map$ (mappa $i$->$r_i$), con questa mappa l'algoritmo calcola il ranking rispetto ai valori di $R$ ed $r_i$.
+Per poter effettuare il calcolo dei valori di $R$ ed $r_i$ l'algoritmo utilizza la matrice che contiene le frequenze delle parole di ogni documento (sezione \ref{sec:metodi-di-indic}). Durante il reperimento, per ogni documento e per ogni termine $i$, l'algoritmo calcola il numero di documenti considerati rilevanti che lo contengono e salva tale valore in una mappa $map$ (mappa $i \rightarrow r_i$). Con questa mappa l'algoritmo calcola il ranking rispetto ai valori di $R$ ed $r_i$.
 
 \subsection{PageRank}
 \label{sec:pagerank}
 
 \paragraph{\textbf{Descrizione}}
 Comprensione di PageRank, implementazione di PageRank e scrittura di una funzione di reperimento che lo integri.
-la funzione di reperimento combinera' gli score di \textsc{BM25} ($rk$) con il valore del \textsc{pagerank} ($pr$) attraverso la seguente formula:
+La funzione di reperimento realizzata combina gli score di \textsc{BM25} ($rk$) con il valore del \textsc{pagerank} ($pr$) attraverso la seguente formula:
 \[ score =  \alpha \cdot rk + (1-\alpha) \cdot pr,\]
-dove $\alpha$ e' un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uniformemente da pagerank a BM25.
-Ma poter effettuare questo confronto in modo coerente, entrambe le distribuzioni devono essere ridimensionate, si effettua quindi una normalizzazione in modo da avere valori compresi tra 0 e 1. Per far cio' abbiamo usato la formula:
+dove $\alpha$ e' un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uniformemente da \textsc{pagerank} a \textsc{BM25}.
+Per poter effettuare questo confronto in modo coerente, entrambe le distribuzioni devono essere ridimensionate, quindi abbiamo normalizzato $rk$ e $pr$ in modo da avere valori compresi tra 0 e 1. Per far ci\'o abbiamo usato la formula:
 \[ z_i = \frac{x_i - min(x)}{max(x) - min(x)}, \]
 
 
 \paragraph{\textbf{Implementazione}}
-Per effettuare il calcolo del pagerank abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read\_edgelist} permette la costruzione del grafo delle citazioni a partire dalla lista di archi. Inoltre dispone del metodo \texttt{pagerank} per la computazione del pagerank utilizzando \textsc{power iteration} sulla matrice di transizione, tale computazione e' fatta a tempo di indexing e i valori verranno utilizzati a tempo di retrieval.
+Per effettuare il calcolo del \textsc{pagerank} abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read\_edgelist} permette la costruzione del grafo delle citazioni a partire da una lista di archi. Inoltre dispone del metodo \texttt{pagerank} per la computazione del \textsc{pagerank} utilizzando \textsc{power iteration} sulla matrice di transizione. Tale computazione e' fatta a tempo di indexing ed i valori sono utilizzati a tempo di retrieval.
 
 \subsection{Latent Semantic Analysis}
 \label{sec:lsa}
 
 \paragraph{\textbf{Descrizione}}
-Comprensione di Latent Semantic Analysis (\textsc{LSA}), implementazione di LSA e costruzione di una funzione di reperimento che implementi LSA.
-Come funzione di ranking sara' usata la BM25 (laboratorio 3 - sottosezione \ref{sec:metodi-di-reper}) e verra' applicato LSA. 
+Comprensione di Latent Semantic Analysis (\textsc{LSA}), implementazione di \textsc{LSA} e costruzione di una funzione di reperimento che implementi \textsc{LSA}.
+Come funzione di ranking abbiamo usato \textsc{BM25} (laboratorio 3 - sottosezione \ref{sec:metodi-di-reper}) e applicato \textsc{LSA}. 
 
 
-\paragraph{\textbf{Implementazione}}: 
-L'algoritmo calcolera' quindi la BM25 e prendera' in considerazione soltanto i primi $N$ documenti reperiti. Utilizzera' il metodo \texttt{linalg.svd} (appartenente alla libreria \texttt{numpy}) per il calcolo della fattorizzazione della matrice termini-documenti $X$: 
+\paragraph{\textbf{Implementazione}} 
+L'algoritmo calcola quindi la \textsc{BM25} e prende in considerazione soltanto i primi $N$ documenti reperiti. Utilizza il metodo \texttt{linalg.svd} (appartenente alla libreria \texttt{numpy}) per il calcolo della fattorizzazione della matrice termini-documenti $X$: 
 \[ X = U \Sigma V^{T}. \]\\
-Effettuera' un altro ridemensionamento considerando soltanto $m$ dimensioni, ottenendo quindi la matrice ridotta: \[ X_m = U_m \Sigma_m V^{T}_m. \]\\
-Di seguito effettuera' la proiezione di $\vec{q}$ sullo spazio a dimensione ridotto secondo la formula: 
+Effettua un altro ridimensionamento considerando soltanto $m$ dimensioni, ottenendo quindi la matrice ridotta: \[ X_m = U_m \Sigma_m V^{T}_m. \]\\
+Di seguito effettua la proiezione di $\vec{q}$ sullo spazio a dimensione ridotto secondo la formula: 
 \[ \vec{q}_m = \Sigma^{-1}_m U^{T}_m \vec{q}. \]
-Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N$ documenti nello spazio ridotto (cioe' le colonne $V^{T}_m$) e la query ridotta $\vec{q}$, riordinera' i risultati di questi $N$ documenti in ordine decrescente e ad essi verranno accodati i restanti documenti calcolati ad inizio algoritmo tramite il metodo \textsc{bm25}.
+Infine calcola la \textit{cosine similarity} tra le rappresentazioni degli $N$ documenti nello spazio ridotto (cioe' le colonne $V^{T}_m$) e la query ridotta $\vec{q}$, riordina i risultati di questi $N$ documenti in ordine decrescente e ad essi accoda i restanti documenti calcolati ad inizio algoritmo tramite il metodo \textsc{BM25}.
 
 
 \subsection{Hyper-linked Induced Topic Search}
@@ -112,7 +112,7 @@ Infine computera' la \textit{cosine similarity} tra le rappresentazione degli $N
 Comprensione di Hyperlinked Induced Topic Search (\textsc{HITS}), implementazione e costruzione di una funzione di reperimento che implementi \textsc{HITS}.
 
 \paragraph{\textbf{Implementazione}}
-L'algoritmo da noi scritto effettua il ranking tramite la funzione BM25 (laboratorio 3 - sottosezione \ref{sec:metodi-di-reper}), utilizzando i primi $N$ documenti costruisce il corrispondente grafo delle citazioni $R_q$. Quest'ultimo viene espanso per ottenere un grafo allargato $B_q$ sul quale calcolare \textsc{HITS}.
+L'algoritmo da noi scritto effettua il ranking tramite la funzione \textsc{BM25} (laboratorio 3 - sottosezione \ref{sec:metodi-di-reper}), utilizzando i primi $N$ documenti costruisce il corrispondente grafo delle citazioni $R_q$. Quest'ultimo viene espanso per ottenere un grafo allargato $B_q$ sul quale calcolare \textsc{HITS}.
 In figura \ref{fig:unodue} \'e rappresentata la relazione tra il grafo radice $R_q$ e il grafo allargato $B_q$ per capirne le dinamiche di espansione (i grafi si riferiscono alla query $56$).
 \begin{figure}
 	\centering
