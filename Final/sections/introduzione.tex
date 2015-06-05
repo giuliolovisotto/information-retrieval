@@ -4,18 +4,9 @@
 % Introdurre brevemente lo scopo del corso.
 Il corso di Sistemi Informativi ha come obiettivo l'insegnamento di nozioni basilari di Information Retrieval e Motori di Ricerca. Gli argomenti trattati a lezione ed i concetti applicati durante i vari laboratori sono stati utili a comprendere il funzionamento di un reale sistema di Information Retrieval.
 
-I progetti svolti nelle lezioni di laboratorio prevedono l'utilizzo di una collezione di dati fornita dal docente; la collezione utilizzata (disponibile anche online) \'e una raccolta di articoli scientifici tratti dalla rivista \textit{Communications of the ACM}~\cite{ACMCollection}.
-
-La collezione di documenti \'e stata fornita come un unico file xml dove ogni nodo di documento contiene un identificativo, un titolo e altre informazioni come abstract, autori, luogo, riferimenti e citazioni ad altri documenti appartenenti alla collezione. Per il reperimento di documenti utili ad una query vengono considerati titolo ed abstract di ogni documento.
-Sono stati forniti altri file oltre a quello contenente i documenti, questi contengono le parole chiave sotto forma di stem, un insieme di query e l'insieme delle citazioni tra i documenti.
-Grazie all'insieme delle citazioni \'e stato possibile sperimentare nella funzione di reperimento l'uso di \textsc{pagerank} e \textsc{HITS} che considerano il grafo delle citazioni per valutare la rilevanza di un documento.\\
-Inoltre \'e stato introdotto un Evolution Strategy (sottosezione \ref{sec:es}) per ottimizzare gli algoritmi di riperimento implementati.
-\textit{pu\'o andare come intro ad ES?}
+I progetti svolti nelle lezioni di laboratorio prevedono l'utilizzo della CACM collection, che e' una collezione di articoli scientifici tratti dalla rivista \textit{Communications of the ACM}~\cite{ACMCollection}. La collezione contiene i titoli, gli abstract, e altre informazioni quali: autori, luogo della conferenza, e la lista di citazioni verso altri documenti della collezione. Inoltre e' disponibile un set di query e relativi giudizi di rilevanza. Sulla collezione CACM la ricerca si e' concentrata sull'utilizzo dei soli titoli e abstract per il reperimento, quindi verra' utilizzato tale approccio. Grazie all'insieme delle citazioni \'e possibile sperimentare nella funzione di reperimento l'uso di \textsc{pagerank} e \textsc{hits} che utilizzano il grafo costruito a partire delle citazioni per valutare la rilevanza di un documento. Inoltre \'e stato implementato un algoritmo di Evolution Strategy per l'ottimizzazione degli algoritmi di reperimento trattati. L'esposizione del presente documento si svolge secondo criteri di chiarezza e sintesi. Per tutti i dettagli che non vengono descritti si rimanda agli autori e ai testi di riferimento~\cite{manning2008introduction,melucci2013information,croft2010search}.
 \subsection{Organizzazione}
-Il resto del documento \'e organizzato come segue.\\
-Nella seconda sezione sono illustrati i metodi sviluppati per ciascun laboratorio. La sottosezione \ref{sec:approccio} descrive l'approccio generale del gruppo durante il lavoro svolto.
-Nella sezione 3 sono discussi i risultati ottenuti dai laboratori, con qualche considerazione sull'efficienza dei metodi utilizzati (sottosezione \ref{sec:efficienza})
-Infine, la sezione 4 conclude il documento con alcune considerazioni personali del gruppo.
+Il resto del documento \'e organizzato come segue. In Sezione \ref{sec:metodologia} vengono descritti i metodi sviluppati per ciascun laboratorio. In Sezione \ref{sec:risult-sper} vengono discussi i risultati ottenuti per i vari laboratori, e vengono descritte alcune considerazioni sull'efficienza dei metodi utilizzati. Infine, in Sezione \ref{sec:conclusioni} conclude il documento con alcune conclusioni generali.
 
 %Quando si scrive l'introduzione, si deve tenere presente che il lettore atteso
 %sar\`a a conoscenza degli elementi di base. Si dovranno quindi introdurre i

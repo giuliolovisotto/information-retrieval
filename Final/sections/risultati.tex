@@ -13,7 +13,7 @@ Figura \ref{fig:map_all} mostra l'andamento della MAP per le varie funzioni di r
 		\centering
 		\includegraphics[width=\textwidth]{figures/lab4_R.png}
 		\caption[Network2]%
-		{{\small Laboratorio 4 (RF pseudo), al variare di $R$.}}    
+		{{\small Laboratorio 4 (\textsc{rf pseudo}), al variare di $R$.}}    
 		\label{fig:lab4_R}
 	\end{subfigure}
 	\hfill
@@ -44,7 +44,7 @@ Figura \ref{fig:map_all} mostra l'andamento della MAP per le varie funzioni di r
         {\small MAP al variare di alcuni parametri di configurazione della funzione di reperimento, per i diversi laboratori.} 
         \label{fig:map_all}
 \end{figure*}
-Come si puo' vedere da Figura \ref{fig:lab4_R} e Figura \ref{fig:lab6_Nd}, lo pseudo \textsc{rf} e l'\textsc{lsa} peggiorano il valore della MAP al crescere del numero di documenti considerati rilevanti, e del numero di documenti da riordinare, rispettivamente. Cio' significa che dopo il primo passaggio di \textsc{bm25} l'ordine dei documenti e' gia' preciso, e che l'effetto dello pseudo \textsc{rf} e di \textsc{lsa} e' quello di alterare tale ordine, peggiorando l'efficacia del reperimento. In Figura \ref{fig:lab5_a} vediamo che $\alpha$ il parametro che regola l'influenza di \textsc{pagerank} sull'ordine dei documenti, ha un effetto molto negativo per valori piccoli, mentre migliora per valori piu' alti. Infine in Figura \ref{fig:lab7_Nd} vediamo che il reperimento che si avvale di \textsc{hits} ha un massimo per $N=60$, il che significa che se andiamo ad espandere un insieme radice di 60 elementi otteniamo in media la miglior MAP dopo il riordinamento.
+Come si puo' vedere da Figura \ref{fig:lab4_R} e Figura \ref{fig:lab6_Nd}, il \textsc{rf pseudo} e l'\textsc{lsa} peggiorano il valore della MAP al crescere del numero di documenti considerati rilevanti, e del numero di documenti da riordinare, rispettivamente. Cio' significa che dopo il primo passaggio di \textsc{bm25} l'ordine dei documenti e' gia' preciso, e che l'effetto dello pseudo \textsc{rf} e di \textsc{lsa} e' quello di alterare tale ordine, peggiorando l'efficacia del reperimento. In Figura \ref{fig:lab5_a} vediamo che $\alpha$ il parametro che regola l'influenza di \textsc{pagerank} sull'ordine dei documenti, ha un effetto molto negativo per valori piccoli, mentre migliora per valori piu' alti. Infine in Figura \ref{fig:lab7_Nd} vediamo che il reperimento che si avvale di \textsc{hits} ha un massimo per $N=60$, il che significa che se andiamo ad espandere un insieme radice di 60 elementi otteniamo in media la miglior MAP dopo il riordinamento.
 
 Figura \ref{fig:map_hist} mostra le MAP dei vari metodi di reperimento a partire dalla configurazione \textsc{baseline} di \textsc{bm25} (laboratorio 3), scegliendo la miglior combinazione di parametri per ciascuno di essi. 
 \begin{figure}[htpb]
@@ -62,8 +62,8 @@ Tabella \ref{tab:map} riporta i parametri usati per ogni funzione di reperimento
 			metodo & parametri & MAP \\
 			\hline
 			\textsc{baseline} & - & $0.3354$ \\
-			\textsc{rf} esplicito & - & $0.3445$ \\
-			\textsc{rf} pseudo & $R=10$ & $0.3071$ \\
+			\textsc{rf esplicito} & - & $0.3445$ \\
+			\textsc{rf pseudo} & $R=10$ & $0.3071$ \\
 			\textsc{pagerank} & $\alpha=1.0$ & $0.3354$ \\
 			\textsc{lsa} & $N=10, m=2$ & $0.2477$ \\
 			\textsc{hits} & $\alpha=1.0, \beta=0.1, \gamma=0.1, N=60$ & $0.3410$ \\
@@ -73,9 +73,8 @@ Tabella \ref{tab:map} riporta i parametri usati per ogni funzione di reperimento
 	\caption{Dettaglio dei parametri usati per le varie funzioni di reperimento e della relativa map. I parametri di \textsc{bm25} per ogni metodo sono quelli della \textsc{baseline} $k_1 = 0.0253, b = 0.0221$.}
 	\label{tab:map}
 \end{table}
-\vspace{-0.3in}
 
-Dai risultati riportati si puo' notare che gli unici metodi che hanno portato un miglioramento in termini di MAP rispetto alla \textsc{baseline}, sono l'uso del \textsc{rf} esplicito, e quello di \textsc{hits}. Il notevole peggioramento portato da \textsc{lsa} puo' essere spiegato dalla rappresentazione dei documenti nello spazio vettoriale, infatti essi contentendo molto pochi termini in media, sono vettori con molti elementi a zero. Cio' significa che nel nostro contesto, dopo la riduzione dimensionale, le similarita' tra i vettori non sono significative, e il riordinamento quindi sposta alcuni documenti rilevanti dalla cima della classifica verso il fondo. Per il \textsc{pagerank} invece possiamo vedere che sebbene esso non abbia portato un miglioramento partendo dai parametri della \textsc{baseline} (per $\alpha = 1$ il contributo di \textsc{pagerank} viene completamente ignorato nel reperimento), utilizzando $\alpha$ come parametro da ottimizzare, tale metodo puo' portare un leggero miglioramento della precisione, come riportato in Tabella \ref{tab:es}. In particolare, osservando che anche \textsc{hits} ha portato un aumento della MAP in questi termini, possiamo affermare che l'analisi del grafo delle citazioni porta informazione utile alla rilevanza.
+Dai risultati riportati si puo' notare che gli unici metodi che hanno portato un miglioramento in termini di MAP rispetto alla \textsc{baseline}, sono l'uso del \textsc{rf esplicito}, e quello di \textsc{hits}. Il notevole peggioramento portato da \textsc{lsa} puo' essere spiegato dalla rappresentazione dei documenti nello spazio vettoriale, infatti essi contentendo molto pochi termini in media, sono vettori con molti elementi a zero. Cio' significa che nel nostro contesto, dopo la riduzione dimensionale, le similarita' tra i vettori non sono significative, e il riordinamento quindi sposta alcuni documenti rilevanti dalla cima della classifica verso il fondo. Per il \textsc{pagerank} invece possiamo vedere che sebbene esso non abbia portato un miglioramento partendo dai parametri della \textsc{baseline} (per $\alpha = 1$ il contributo di \textsc{pagerank} viene completamente ignorato nel reperimento), utilizzando $\alpha$ come parametro da ottimizzare, tale metodo puo' portare un leggero miglioramento della precisione, come riportato in Tabella \ref{tab:es}. In particolare, osservando che anche \textsc{hits} ha portato un aumento della MAP in questi termini, possiamo affermare che l'analisi del grafo delle citazioni porta informazione utile alla rilevanza.
 
 \subsection{Efficienza}
 \label{sec:efficienza}
