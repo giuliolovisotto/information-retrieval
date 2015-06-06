@@ -52,7 +52,7 @@ L'algoritmo scorre la lista dei documenti, e per ognuno di essi calcola e somma 
 \State $sort(S)$\\
 \Return top $k$ scoring documents
 \end{algorithmic}
-Tale algoritmo ha complessit\`a $O(n \cdot m)$, dove $n$ \`e il numero di documenti nella collezione ed $m$ \`e il numero di termini presenti nella query $Q$. Il risultato della funzione di reperimento qui presentata verr\`a indicato nel resto del documento come \textsc{baseline}. Ai fini dell'efficienza, i due cicli dell'algoritmo sono stati in un secondo momento convertiti in una serie di operazioni su matrici. Grazie ai benefici della $vectorization$ in \texttt{numpy}, cio' ha garantito un notevole miglioramento del tempo di esecuzione.
+Tale algoritmo ha complessit\`a $O(n \cdot m)$, dove $n$ \`e il numero di documenti nella collezione ed $m$ \`e il numero di query presenti in $Q$. Il risultato della funzione di reperimento qui presentata verr\`a indicato nel resto del documento come \textsc{baseline}. Ai fini dell'efficienza, i due cicli dell'algoritmo sono stati in un secondo momento convertiti in una serie di operazioni su matrici. Grazie ai benefici della $vectorization$ in \texttt{numpy}, cio' ha garantito un notevole miglioramento del tempo di esecuzione.
 \subsection{Relevance Feedback}
 \label{sec:relevance-feedback}
 
@@ -65,7 +65,7 @@ dove $R$ \`e il numero di documenti rilevanti per la query considerata, mentre $
 L'implementazione delle due tipologie di \textsc{rf} \`e differente, poich\'e il calcolo dello \textsc{pseudo} richiede due passi, mentre ne basta uno solo per l'\textsc{esplicito}.
 \begin{itemize}
 \item \textsc{esplicito}: viene utilizzato il file \textit{qrels-treceval.txt}, contenente i giudizi di rilevanza, per estrarre i valori di $R$ ed $r_i$.
-\item \textsc{pseudo}: viene eseguito un reperimento con la funzione \textsc{baseline}. Vengono poi considerati rilevanti i primi $N$ documenti reperiti, cio\`e $R=N$. Per il calcolo di $r_i$ viene utilizzata FDTM, dove un elemento $FDTM(j, k)>0$ significa che il documento $j$ contiene il termine $k$.
+\item \textsc{pseudo}: viene eseguito un reperimento con la funzione \textsc{baseline}. Vengono poi considerati rilevanti i primi $N$ documenti reperiti, cio\`e $R=N$. Per il calcolo di $r_i$ viene utilizzata FDTM, dove un elemento $FDTM(j, k)>0$ indica che il documento $j$ contiene il termine $k$.
 \end{itemize}
 I valori di $R, r_i$ vengono inseriti nella formula di \textsc{bm25} per ottenere il ranking finale.
 
@@ -78,7 +78,7 @@ Comprensione di \textsc{pagerank} e implementazione di una funzione di reperimen
 \[ S^{(PR)}_j =  \alpha \cdot S^{(BM25)}_j + (1-\alpha) \cdot pr_j,\]
 dove $\alpha$ \`e un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uniformemente da \textsc{pagerank} a \textsc{bm25}.
 Per poter effettuare tale somma in modo coerente, entrambe le distribuzioni (gli score di \textsc{bm25} e i valori di \textsc{pagerank}) devono essere scalate. \`E stato scelto di normalizzare gli $S^{(BM25)}_j$ e i $pr_j$ in modo da avere valori compresi tra 0 e 1. Per far ci\'o abbiamo usato la formula:
-\[ z_i = \frac{x_i - min(x)}{max(x) - min(x)}, \]
+\[ z_i = \frac{x_i - min(x)}{max(x) - min(x)} \]
 
 \paragraph{\textbf{Implementazione}}
 Per effettuare il calcolo del \textsc{pagerank} abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read\_edgelist} permette la costruzione del grafo delle citazioni a partire da una lista di archi, contenuta nel file \textit{citazioni.txt}. Inoltre dispone del metodo \texttt{pagerank} per la computazione del \textsc{pagerank} utilizzando \textsc{power iteration} sulla matrice di transizione. Tale computazione \`e fatta a tempo di indicizzazione, e i valori sono salvati su un file. A tempo di reperimento l'algoritmo effettua il reperimento con la funzione \textsc{baseline} e poi combina i risultati usando i valori di \textsc{pagerank} per calcolare il punteggio finale. La normalizzazione viene effettuata con metodi e operazioni su vettori.
@@ -106,7 +106,7 @@ Comprensione di Hyperlinked Induced Topic Search (\textsc{hits}), implementazion
 \[ S^{(HITS)}_j =  \alpha \cdot S^{(BM25)}_j + \beta \cdot auth_j + \gamma \cdot hub_j,\]
 dove $auth_j$ e $hub_j$ indicano rispettivamente il punteggio di autorevolezza e di hubbines per il documento $j$ nel grafo $G_B$. Il valore dei parametri $\alpha, \beta, \gamma$ puo' variare tra [0, 1]. Infine gli $N$ documenti inizialmente individuati vengono riordinati in base al punteggio cosi' ottenuto. Una normalizzazione come quella presentata in Sezione \ref{sec:pagerank} viene utilizzata per ottenere dei punteggi confrontabili per le tre distribuzioni (autorevolezza, hubbiness, punteggio di \textsc{bm25}).
 \paragraph{\textbf{Implementazione}}
-L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende in considerazione soltanto i primi $N$ documenti reperiti. Carica poi l'intero grafo delle citazioni, caricando la lista di archi contenuta in \textit{citazioni.txt}. Poi viene salvata la lista dei nodi che costituisce il grafo radice $G_R$, e viene effettutata l'espansione iterando sugli archi di tali nodi, ottenendo cosi' una lista di nodi che costituisce i nodi che costituiranno $G_B$. Utilizzando tale lista viene costruito il grafo base. Su tale grafo viene computato \textsc{hits} con il metodo \texttt{networkx.hits}. Le distribuzioni dei punteggi vengono scalate, e infine viene calcolato il $S^{(HITS)}_j$. Infine l'algoritmo modifica il ranking per gli $N$ documenti rispetto al punteggio calcolato. I restanti documenti vengono semplicemente accodati. Figura \ref{fig:hitsexpansion} mostra il grafo radice e il grafo base per la query $56$.
+L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende in considerazione soltanto i primi $N$ documenti reperiti. Carica poi l'intero grafo delle citazioni, utilizzando la lista di archi contenuta in \textit{citazioni.txt}. Poi viene salvata la lista dei nodi che costituisce il grafo radice $G_R$, e viene effettuata l'espansione iterando sugli archi di tali nodi, ottenendo cosi' un'altra lista di nodi che formano $G_B$, il grafo base. Su quest'ultimo grafo viene computato \textsc{hits} con il metodo \texttt{networkx.hits}. Le distribuzioni dei punteggi vengono scalate, e infine viene calcolato lo $S^{(HITS)}_j$. Infine l'algoritmo modifica il ranking per gli $N$ documenti rispetto al punteggio calcolato. I restanti documenti vengono semplicemente accodati. Figura \ref{fig:hitsexpansion} mostra il grafo radice e il grafo base per la query $56$.
 
 \begin{figure}
 	\centering
