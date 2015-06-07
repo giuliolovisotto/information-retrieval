@@ -7,9 +7,9 @@ In questa sezione verranno descritti in dettaglio l'approccio usato per il lavor
 \subsection{Approccio}
 \label{sec:approccio}
 
-L'obiettivo delle funzioni di reperimento implementate \'e di massimizzare la Mean Average Precision (\textsc{MAP}). Per calcolarla e verificarne il cambiamento durante le varie versioni del codice viene utilizzato \texttt{trec\_eval}, esso \`e il tool standard usato dalla TREC community per valutare l'efficacia del reperimento. Tale strumento prende in input un file di risultati del reperimento e un file con i giudizi di rilevanza \textit{qrels-treceval.txt} fornendo un insieme di misure di efficacia.
+L'obiettivo delle funzioni di reperimento implementate \'e di massimizzare la Mean Average Precision (\textsc{MAP}). Per calcolarla e verificarne il cambiamento durante le varie versioni del codice viene utilizzato \texttt{trec\_eval}, esso \`e il tool standard usato dalla TREC community per valutare l'efficacia del reperimento. Tale strumento prende in input un file di risultati del reperimento e un file con i giudizi di rilevanza \textit{qrels-treceval.txt}, e fornisce un insieme di misure di efficacia.
 
-\`E stato scelto di utilizzare un metodo probabilistico per la risoluzione dei laboratori, in particolare \`e stato utilizzato l'algoritmo \textsc{bm25} \cite{melucci2013information} poich\'e \'e un buon modello ed \`e stato usato con successo in letteratura \cite{croft2010search}.  Per realizzare le implementazioni \`e stato utilizzato Python, corredato da diverse librerie: \texttt{numpy/scipy} per la gestione delle matrici, \texttt{matplotlib} per il plot dei risultati, \texttt{networkx} per la gestione dei grafi.
+\`E stato scelto di utilizzare un metodo probabilistico per la risoluzione dei laboratori, in particolare \`e stato utilizzato l'algoritmo \textsc{bm25} \cite{melucci2013information} poich\'e \'e un buon modello, ed \`e stato usato con successo in letteratura \cite{croft2010search}.  Per realizzare le implementazioni \`e stato utilizzato Python, corredato da diverse librerie: \texttt{numpy/scipy} per la gestione delle matrici, \texttt{matplotlib} per il plot dei risultati, \texttt{networkx} per la gestione dei grafi.
 Per il versionamento si \`e scelto \texttt{Git}. Tutto il codice prodotto \`e disponibile online \cite{repoonline}. 
 
 Per lo svolgimento dei laboratori \`e stato utilizzato un approccio di gruppo. Durante le ore di laboratorio i componenti del gruppo affrontavano una discussione, riguardante sia gli aspetti teorici che pratici trattati. Veniva quindi deciso come procedere, e durante un successivo incontro venivano definiti i dettagli del lavoro svolto e venivano prodotti i documenti da consegnare.
@@ -31,13 +31,13 @@ Per l'implementazione \`e stato utilizzato il file \textit{freq.docid.stem.txt} 
 \subsection{Reperimento}
 \label{sec:metodi-di-reper}
 
-\paragraph{\textbf{Descrizione}}
+\paragraph{\textbf{Descrizione.}}
 Comprensione dei meccanismi di reperimento e costruzione di un primo algoritmo di reperimento.
 Realizzazione dell'algoritmo \textsc{bm25}, che riceve in input una query e restituisce una lista ordinata di documenti con i relativi punteggi. Per chiarezza viene riportata la formula del reperimento tramite tale algoritmo (per il documento $j$), si rimanda al libro \cite{melucci2013information} per la spiegazione completa:
 \[ S^{(BM25)}_j = \sum\limits_{i \in Q}\log\Bigl(\frac{N-n_i+0.5}{n_i+0.5}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i}. \]
 
 
-\paragraph{\textbf{Implementazione}}
+\paragraph{\textbf{Implementazione.}}
 L'algoritmo scorre la lista dei documenti, e per ognuno di essi calcola e somma il punteggio di \textsc{bm25} per ogni termine della query $qw \in Q$. Le strutture ottenute dall'indicizzazione (Sezione \ref{sec:metodi-di-indic}) vengono utilizzate per tale calcolo. Il dizionario e la matrice FDTM vengono utilizzati per recuperare le frequenze dei termini, mentre le lunghezze dei documenti vengono direttamente inserite nella formula di \textsc{bm25}. Lo pseudocodice per l'algoritmo \`e il seguente:
 \begin{algorithmic}
 \State $C \gets documents$
@@ -52,16 +52,16 @@ L'algoritmo scorre la lista dei documenti, e per ognuno di essi calcola e somma 
 \State $sort(S)$\\
 \Return top $k$ scoring documents
 \end{algorithmic}
-Tale algoritmo ha complessit\`a $O(n \cdot m)$, dove $n$ \`e il numero di documenti nella collezione ed $m$ \`e il numero di query presenti in $Q$. Il risultato della funzione di reperimento qui presentata verr\`a indicato nel resto del documento come \textsc{baseline}. Ai fini dell'efficienza, i due cicli dell'algoritmo sono stati in un secondo momento convertiti in una serie di operazioni su matrici. Grazie ai benefici della $vectorization$ in \texttt{numpy}, cio' ha garantito un notevole miglioramento del tempo di esecuzione.
+Tale algoritmo ha complessit\`a $O(n \cdot m)$, dove $n$ \`e il numero di documenti nella collezione ed $m$ \`e il numero di termini presenti nella query $Q$. Il risultato della funzione di reperimento qui presentata verr\`a indicato nel resto del documento come \textsc{baseline}. Ai fini dell'efficienza, i due cicli dell'algoritmo sono stati in un secondo momento convertiti in una serie di operazioni su matrici. Grazie ai benefici della $vectorization$ in \texttt{numpy}, cio' ha garantito un notevole miglioramento del tempo di esecuzione.
 \subsection{Relevance Feedback}
 \label{sec:relevance-feedback}
 
-\paragraph{\textbf{Descrizione}}
+\paragraph{\textbf{Descrizione.}}
 Implementazione di una funzione di reperimento che utilizza Relevance Feedback (\textsc{rf}), sia \textsc{esplicito} che \textsc{pseudo}. Nel primo caso, si ricorda che l'algoritmo \textsc{bm25} nella sua forma completa, integra le informazioni di rilevanza:
 \[ S^{(RF)}_j = \sum\limits_{i \in Q}\log\Bigl(\frac{(r_i+0.5)/(R-r_i+0.5)}{(n_i-r_i+0.5)/(N-n_i-R+r_i+0.5)}\Bigl)\cdot\frac{(k_1+1)f_i}{k+f_i}\cdot\frac{(k_2+1)qf_i}{k_2+qf_i}, \]
 dove $R$ \`e il numero di documenti rilevanti per la query considerata, mentre $r_i$ \`e il numero di documenti rilevanti che contengono il termine $i$. Mentre nel caso del \textsc{rf esplicito} tali informazioni sono note, nel caso di \textsc{rf pseudo} esse vengono ricavate dopo un primo reperimento con la funzione \textsc{baseline}, dove i primi $N$ documenti sono considerati rilevanti.
 
-\paragraph{\textbf{Implementazione}} 
+\paragraph{\textbf{Implementazione.}} 
 L'implementazione delle due tipologie di \textsc{rf} \`e differente, poich\'e il calcolo dello \textsc{pseudo} richiede due passi, mentre ne basta uno solo per l'\textsc{esplicito}.
 \begin{itemize}
 \item \textsc{esplicito}: viene utilizzato il file \textit{qrels-treceval.txt}, contenente i giudizi di rilevanza, per estrarre i valori di $R$ ed $r_i$.
@@ -72,24 +72,25 @@ I valori di $R, r_i$ vengono inseriti nella formula di \textsc{bm25} per ottener
 \subsection{PageRank}
 \label{sec:pagerank}
 
-\paragraph{\textbf{Descrizione}}
+\paragraph{\textbf{Descrizione.}}
 Comprensione di \textsc{pagerank} e implementazione di una funzione di reperimento che lo integri.
 \`E stata scelta la seguente formula per il ranking. Per ogni documento $j$, essa combina gli score di \textsc{bm25} ($S^{(BM25)}_j$)  con il valore del \textsc{pagerank} ($pr_j$) nel seguente modo:
 \[ S^{(PR)}_j =  \alpha \cdot S^{(BM25)}_j + (1-\alpha) \cdot pr_j,\]
 dove $\alpha$ \`e un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uniformemente da \textsc{pagerank} a \textsc{bm25}.
 Per poter effettuare tale somma in modo coerente, entrambe le distribuzioni (gli score di \textsc{bm25} e i valori di \textsc{pagerank}) devono essere scalate. \`E stato scelto di normalizzare gli $S^{(BM25)}_j$ e i $pr_j$ in modo da avere valori compresi tra 0 e 1. Per far ci\'o abbiamo usato la formula:
-\[ z_i = \frac{x_i - min(x)}{max(x) - min(x)} \]
+\[ z_i = \frac{x_i - min(x)}{max(x) - min(x)}, \]
+dove $z_i$ \'e il valore ridimensionato, e $x_i$ \'e il valore originale.
 
-\paragraph{\textbf{Implementazione}}
+\paragraph{\textbf{Implementazione.}}
 Per effettuare il calcolo del \textsc{pagerank} abbiamo utilizzato la libreria \texttt{networkx}, essa attraverso il metodo \texttt{read\_edgelist} permette la costruzione del grafo delle citazioni a partire da una lista di archi, contenuta nel file \textit{citazioni.txt}. Inoltre dispone del metodo \texttt{pagerank} per la computazione del \textsc{pagerank} utilizzando \textsc{power iteration} sulla matrice di transizione. Tale computazione \`e fatta a tempo di indicizzazione, e i valori sono salvati su un file. A tempo di reperimento l'algoritmo effettua il reperimento con la funzione \textsc{baseline} e poi combina i risultati usando i valori di \textsc{pagerank} per calcolare il punteggio finale. La normalizzazione viene effettuata con metodi e operazioni su vettori.
 
 \subsection{Latent Semantic Analysis}
 \label{sec:lsa}
 
-\paragraph{\textbf{Descrizione}}
+\paragraph{\textbf{Descrizione.}}
 Comprensione di Latent Semantic Analysis (\textsc{lsa}) e costruzione di una funzione di reperimento che integri \textsc{lsa}. \`E stato scelto di utilizzare \textsc{lsa} per riordinare i primi $N$ documenti reperiti con la funzione di reperimento \textsc{baseline}. 
 
-\paragraph{\textbf{Implementazione}} 
+\paragraph{\textbf{Implementazione.}} 
 L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende in considerazione soltanto i primi $N$ documenti reperiti. Filtra quindi la matrice DTM in maniera che le uniche righe considerate siano quelle relative agli $N$ documenti considerati, e successivamente rimuove i termini (le colonne) che non compaiono in tale matrice. Ci riferiamo alla matrice cosi' ottenuta come $X$, che rappresenta ora il nostro spazio delle feature. Viene poi utilizzato il metodo \texttt{numpy.linalg.svd} per il calcolo della fattorizzazione della matrice $X$: 
 \[ X = U \Sigma V^{T}. \]
 Vengono poi considerate $m$ dimensioni, ottenendo quindi la matrice ridotta: 
@@ -101,11 +102,11 @@ Infine l'algoritmo calcola la \textit{cosine similarity} tra le rappresentazioni
 \subsection{Hyper-linked Induced Topic Search}
 \label{sec:hits}
 
-\paragraph{\textbf{Descrizione}}
+\paragraph{\textbf{Descrizione.}}
 Comprensione di Hyperlinked Induced Topic Search (\textsc{hits}), implementazione di una funzione di reperimento che integri \textsc{hits}. \`E stato scelto di riordinare i primi $N$ documenti reperiti con la funzione di reperimento \textsc{baseline}. A tal fine viene costruito il grafo radice $G_R$ contente gli $N$ documenti individuati, ed esso viene espanso secondo la dinamica standard: ogni nodo citato dai nodi di $G_R$ o citante i nodi di $G_R$ viene aggiunto al grafo radice di partenza. Il grafo risultante \`e detto grafo base $G_B$. Infine per ogni documento $j$ di $G_B$, viene calcolato lo score $S^{(HITS)}_{j}$ con la seguente formula:
 \[ S^{(HITS)}_j =  \alpha \cdot S^{(BM25)}_j + \beta \cdot auth_j + \gamma \cdot hub_j,\]
 dove $auth_j$ e $hub_j$ indicano rispettivamente il punteggio di autorevolezza e di hubbines per il documento $j$ nel grafo $G_B$. Il valore dei parametri $\alpha, \beta, \gamma$ puo' variare tra [0, 1]. Infine gli $N$ documenti inizialmente individuati vengono riordinati in base al punteggio cosi' ottenuto. Una normalizzazione come quella presentata in Sezione \ref{sec:pagerank} viene utilizzata per ottenere dei punteggi confrontabili per le tre distribuzioni (autorevolezza, hubbiness, punteggio di \textsc{bm25}).
-\paragraph{\textbf{Implementazione}}
+\paragraph{\textbf{Implementazione.}}
 L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende in considerazione soltanto i primi $N$ documenti reperiti. Carica poi l'intero grafo delle citazioni, utilizzando la lista di archi contenuta in \textit{citazioni.txt}. Poi viene salvata la lista dei nodi che costituisce il grafo radice $G_R$, e viene effettuata l'espansione iterando sugli archi di tali nodi, ottenendo cosi' un'altra lista di nodi che formano $G_B$, il grafo base. Su quest'ultimo grafo viene computato \textsc{hits} con il metodo \texttt{networkx.hits}. Le distribuzioni dei punteggi vengono scalate, e infine viene calcolato lo $S^{(HITS)}_j$. Infine l'algoritmo modifica il ranking per gli $N$ documenti rispetto al punteggio calcolato. I restanti documenti vengono semplicemente accodati. Figura \ref{fig:hitsexpansion} mostra il grafo radice e il grafo base per la query $56$.
 
 \begin{figure}
@@ -209,10 +210,4 @@ metodo & parametri ottimizzati & MAP \\
 \end{table}
 
 Grazie all'ES si \`e ottenuto un notevole miglioramento rispetto alla prima versione dove i parametri sono stati scelti manualmente e il valore di MAP si aggirava attorno al $0.25$. Inoltre dai grafici si puo' notare come l'algoritmo di ottimizzazione sia molto robusto, dato che dopo $\sim{300}$ valutazioni \`e gi\`a molto vicino alla configurazione ottima. I risultati dell'ottimizzazione vengono discussi in Sezione \ref{sec:risult-sper}.
-
-\subsection{Altri metodi}
-tipo lucene
-\label{sec:altri-metodi}
-
-Se sono stati sviluppati altri metodi, descriverli qui.
 
