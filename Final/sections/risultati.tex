@@ -78,11 +78,11 @@ Dai risultati riportati si pu\`o notare che gli unici metodi che hanno portato u
 
 \subsection{Efficienza}
 \label{sec:efficienza}
-Figura \ref{fig:efficiency} riporta i tempi di esecuzione delle varie funzioni di reperimento. I parametri utilizzati sono quelli riportati in Tabella \ref{tab:map}. Per ogni metodo si presume che l'indicizzazione sia gi\`a avvenuta, e inoltre tutte le misure calcolabili offline (a tempo di indicizzazione) siano gi\`a state computate (e.g. il dizionario, le lunghezze dei documenti, la document-term matrix, il valore di pagerank). Come si pu\`o vedere, in particolare grazie alla \textit{vectorization} usata per effettuare il calcolo di \textsc{bm25}, il tempo di esecuzione del reperimento \textsc{baseline} \`e molto breve, poco pi\`u di un secondo. 
+Figura \ref{fig:efficiency} riporta i tempi di esecuzione delle varie funzioni di reperimento, per l'intero set di queries fornite. I parametri utilizzati sono quelli riportati in Tabella \ref{tab:map}. Per ogni metodo si presume che l'indicizzazione sia gi\`a avvenuta, e inoltre tutte le misure calcolabili offline (a tempo di indicizzazione) siano gi\`a state computate (e.g.: il dizionario, le lunghezze dei documenti, la DTM, il valore di pagerank). Come si pu\`o vedere, in particolare grazie alla \textit{vectorization} usata per effettuare il calcolo di \textsc{bm25}, il tempo di esecuzione del reperimento \textsc{baseline} \`e molto breve, poco pi\`u di un secondo. 
 \begin{figure}[htpb]
 	\begin{center}
 		\includegraphics[width=0.75\textwidth]{figures/efficiency.png}
-		\caption{Tempo di esecuzione (secondi) e relativa standard deviation per le varie funzioni di reperimento. Media su 20 run. Le run vengono eseguite su thread singolo.}
+		\caption{Tempo di esecuzione (secondi) e relativa standard deviation per le varie funzioni di reperimento sull'intero set di queries. Media su 20 run. Le run vengono eseguite su thread singolo.}
 		\label{fig:efficiency}
 	\end{center}
 \end{figure}
