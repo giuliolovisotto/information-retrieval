@@ -77,7 +77,7 @@ Comprensione di \textsc{pagerank} e implementazione di una funzione di reperimen
 \`E stata scelta la seguente formula per il ranking. Per ogni documento $j$, essa combina gli score di \textsc{bm25} ($S^{(BM25)}_j$)  con il valore del \textsc{pagerank} ($pr_j$) nel seguente modo:
 \[ S^{(PR)}_j =  \alpha \cdot S^{(BM25)}_j + (1-\alpha) \cdot pr_j,\]
 dove $\alpha$ \`e un parametro che varia tra 0 ed 1 e, quindi, sposta il peso uniformemente da \textsc{pagerank} a \textsc{bm25}.
-Per poter effettuare tale somma in modo coerente, entrambe le distribuzioni (gli score di \textsc{bm25} e i valori di \textsc{pagerank}) devono essere scalate. \`E stato scelto di normalizzare gli $S^{(BM25)}_j$ e i $pr_j$ in modo da avere valori compresi tra 0 e 1. Per far ci\'o abbiamo usato la formula:
+Per poter effettuare tale somma in modo coerente, entrambe le distribuzioni (gli score di \textsc{bm25} e i valori di \textsc{pagerank}) devono essere ridimensionate. \`E stato scelto di normalizzare gli $S^{(BM25)}_j$ e i $pr_j$ in modo da avere valori compresi tra 0 e 1. Per far ci\'o abbiamo usato la formula:
 \[ z_i = \frac{x_i - min(x)}{max(x) - min(x)}, \]
 dove $z_i$ \'e il valore ridimensionato, e $x_i$ \'e il valore originale.
 
@@ -107,9 +107,9 @@ Comprensione di Hyperlinked Induced Topic Search, implementazione di una funzion
 \[ S^{(HITS)}_j =  \alpha \cdot S^{(BM25)}_j + \beta \cdot auth_j + \gamma \cdot hub_j,\]
 dove $auth_j$ e $hub_j$ indicano rispettivamente il punteggio di autorevolezza e di hubbines per il documento $j$ nel grafo $G_B$. Il valore dei parametri $\alpha, \beta, \gamma$ pu\`o variare tra [0, 1]. Infine gli $N$ documenti inizialmente individuati vengono riordinati in base al punteggio cos\`i ottenuto. Una normalizzazione come quella presentata in Sezione \ref{sec:pagerank} viene utilizzata per ottenere dei punteggi confrontabili per le tre distribuzioni (autorevolezza, hubbiness, punteggio di \textsc{bm25}).
 \paragraph{\textbf{Implementazione.}}
-L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende in considerazione soltanto i primi $N$ documenti reperiti. Carica poi l'intero grafo delle citazioni, utilizzando la lista di archi contenuta in \textit{citazioni.txt}. Poi viene salvata la lista dei nodi che costituisce il grafo radice $G_R$, e viene effettuata l'espansione iterando sugli archi di tali nodi, ottenendo cos\`i un'altra lista di nodi che formano $G_B$, il grafo base. Su quest'ultimo grafo viene computato \textsc{hits} con il metodo \texttt{networkx.hits}. Le distribuzioni dei punteggi vengono scalate, e infine viene calcolato lo $S^{(HITS)}_j$. Infine l'algoritmo modifica il ranking per gli $N$ documenti rispetto al punteggio calcolato. I restanti documenti vengono semplicemente accodati. Figura \ref{fig:hitsexpansion} mostra il grafo radice e il grafo base per la query $56$.
+L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende in considerazione soltanto i primi $N$ documenti reperiti. Carica poi l'intero grafo delle citazioni, utilizzando la lista di archi contenuta in \textit{citazioni.txt}. Poi viene salvata la lista dei nodi che costituisce il grafo radice $G_R$, e viene effettuata l'espansione iterando sugli archi di tali nodi, ottenendo cos\`i un'altra lista di nodi che formano $G_B$, il grafo base. Su quest'ultimo grafo viene computato \textsc{hits} con il metodo \texttt{networkx.hits}. Le distribuzioni dei punteggi vengono ridimensionate, e infine viene calcolato $S^{(HITS)}_j$. Infine l'algoritmo modifica il ranking per gli $N$ documenti rispetto al punteggio calcolato. I restanti documenti vengono semplicemente accodati. Figura \ref{fig:hitsexpansion} mostra il grafo radice e il grafo base per la Query $56$.
 
-\begin{figure}
+\begin{figure}[H]
 	\centering
 	\begin{subfigure}{.5\textwidth}
 		\centering
@@ -123,21 +123,21 @@ L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende 
 		\caption{Grafo base $G_B^{(56)}$.}
 		\label{fig:due}
 	\end{subfigure}
-	\caption{Grafi costruiti a partire dai primi $N=50$ documenti reperiti per la query $56$.}
+	\caption{Grafi costruiti a partire dai primi $N=50$ documenti reperiti per la Query $56$.}
 	\label{fig:hitsexpansion}
 \end{figure}
 
 \subsection{Evolution Strategy}
 \label{sec:es}
 
-Per ottimizzare gli algoritmi di reperimento abbiamo scelto di utilizzare un Evolution Strategy~\cite{back1996evolutionary}, una tecnica di ottimizzazione basata sui principi che regolano l'evoluzione. Tecniche di questo tipo sono pi\`u robuste rispetto ai metodi di ricerca lineare per quanto riguarda i massimi locali. Il loro svantaggio consiste nel maggior numero di valutazioni richieste. Nel nostro contesto una valutazione impiega circa 1-17 secondi a seconda della complessit\`a del metodo di reperimento. Ci\`o permette di eseguire l'algoritmo di ottimizzazione in un tempo accettabile.
+Per ottimizzare gli algoritmi di reperimento \`e stato scelto di utilizzare un Evolution Strategy~\cite{back1996evolutionary}, una tecnica di ottimizzazione basata sui principi che regolano l'evoluzione. Tecniche di questo tipo sono pi\`u robuste rispetto ai metodi di ricerca lineare per quanto riguarda i massimi locali. Il loro svantaggio consiste nel maggior numero di valutazioni richieste. In questo contesto una valutazione impiega circa 1-17 secondi a seconda della complessit\`a del metodo di reperimento. Ci\`o permette di eseguire l'algoritmo di ottimizzazione in un tempo accettabile.
 
-I parametri che abbiamo scelto di ottimizzare cambiano in base alla funzione di reperimento (e quindi del laboratorio). Per il laboratorio 3 (\textsc{baseline}), 4 (\textsc{rf}) e 6 (\textsc{lsa}) abbiamo scelto di ottimizzare $k_1$ e $b$. Ignoriamo $k_2$ perch\'e abbiamo verificato che non ci sono termini ripetuti nelle query e quindi  quest'ultimo non influisce sul punteggio. Per quanto riguarda il laboratorio 5 (\textsc{pagerank}) ottimizziamo $k_1, b$ ed $\alpha$. Invece per il laboratorio 7 (\textsc{hits}) ottimizziamo $k_1, b, \alpha, \beta$ e $\gamma$. Per lo pseudo relevance feedback del laboratorio 4 il numero di documenti considerati rilevanti $R = 50$, mentre per l'\textsc{lsa} del laboratorio 6 il numero di documenti da riordinare $N = 30$ e il numero di dimensioni per la riduzione $m=2$ (tali parametri sono interi e non si prestano ad un'ottimizzazione tramite ES). La funzione da massimizzare \`e la Mean Average Precision.
+I parametri scelti per l'ottimizzazione cambiano in base alla funzione di reperimento (e quindi del laboratorio). Per il laboratorio 3 (\textsc{baseline}), 4 (\textsc{rf}) e 6 (\textsc{lsa}) sono stati ottimizzati $k_1$ e $b$. \`E stato ignorato $k_2$ in quanto non ci sono termini ripetuti nelle query e quindi  quest'ultimo non influisce sul punteggio. Per quanto riguarda il laboratorio 5 (\textsc{pagerank}) vengono ottimizzati $k_1, b$ ed $\alpha$. Invece per il laboratorio 7 (\textsc{hits}) vengono ottimizzati $k_1, b, \alpha, \beta$ e $\gamma$. Per lo pseudo relevance feedback del laboratorio 4 il numero di documenti considerati rilevanti $R = 50$, mentre per l'\textsc{lsa} del laboratorio 6 il numero di documenti da riordinare $N = 30$ e il numero di dimensioni per la riduzione $m=2$ (tali parametri sono interi e non si prestano ad un'ottimizzazione tramite ES). La funzione da massimizzare \`e la Mean Average Precision.
 
 Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione della funzione di reperimento dei laboratori. 
-\begin{figure*}
+\begin{figure}[H]
         \centering
-        \begin{subfigure}[htpb]{0.475\textwidth}
+        \begin{subfigure}{0.475\textwidth}
             \centering
             \includegraphics[width=\textwidth]{figures/es_lab3.png}
             \caption[Network2]%
@@ -145,7 +145,7 @@ Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione d
             \label{fig:es_lab3}
         \end{subfigure}
         \hfill
-        \begin{subfigure}[htpb]{0.475\textwidth}  
+        \begin{subfigure}{0.475\textwidth}  
             \centering 
             \includegraphics[width=\textwidth]{figures/es_lab4_e.png}
             \caption[]%
@@ -153,7 +153,7 @@ Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione d
             \label{fig:es_lab4_esp}
         \end{subfigure}
         \vskip\baselineskip
-        \begin{subfigure}[htpb]{0.475\textwidth}   
+        \begin{subfigure}{0.475\textwidth}   
             \centering 
             \includegraphics[width=\textwidth]{figures/es_lab4_p.png}
             \caption[]%
@@ -161,7 +161,7 @@ Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione d
             \label{fig:es_lab4_pse}
         \end{subfigure}
         \quad
-        \begin{subfigure}[htpb]{0.475\textwidth}   
+        \begin{subfigure}{0.475\textwidth}   
             \centering 
             \includegraphics[width=\textwidth]{figures/es_lab5.png}
             \caption[]%
@@ -169,7 +169,7 @@ Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione d
             \label{fig:es_lab5_esp}
         \end{subfigure}
         \vskip\baselineskip
-        \begin{subfigure}[htpb]{0.475\textwidth}  
+        \begin{subfigure}{0.475\textwidth}  
             \centering 
             \includegraphics[width=\textwidth]{figures/es_lab6.png}
             \caption[]%
@@ -177,7 +177,7 @@ Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione d
             \label{fig:es_lab6}
         \end{subfigure}
         \quad
-        \begin{subfigure}[htpb]{0.475\textwidth}   
+        \begin{subfigure}{0.475\textwidth}   
             \centering 
             \includegraphics[width=\textwidth]{figures/es_lab7.png}
             \caption[]%
@@ -187,18 +187,18 @@ Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione d
         \caption[ The average and standard deviation of critical parameters ]
         {\small Valore MAP durante iterazioni dell'ES, per le funzioni di reperimento dei vari laboratori.} 
         \label{fig:es_all}
-\end{figure*}
+\end{figure}
+
 Tabella \ref{tab:es} riporta i risultati dell'ottimizzazione.
 \begin{table}[htpb]
-
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
 metodo & parametri ottimizzati & MAP \\
  \hline
 \textsc{baseline} & $k_1 = 0.0253, b = 0.0221$ & $0.3354$ \\
-\textsc{rf} esplicito & $k_1 = 0.02065, b = 0.0$ & $0.3504$ \\
-\textsc{rf} pseudo & $k_1 = 0.02065, b = 0.0$ & $0.3022$ \\
+\textsc{rf esplicito}  & $k_1 = 0.02065, b = 0.0$ & $0.3504$ \\
+\textsc{rf pseudo}  & $k_1 = 0.02065, b = 0.0$ & $0.3022$ \\
 \textsc{pagerank} & $k_1 = 0.0237, b = 0.0, \alpha=0.7832$ & $0.3366$ \\
 \textsc{lsa} & $k_1 = 0.0087, b = 0.0$ & $0.2648$ \\
 \textsc{hits} & $k_1 = 0.0247, b = 0.0185, \alpha=1.0, \beta=0.1098, \gamma=0.0549$ & $0.3405$ \\
@@ -210,4 +210,5 @@ metodo & parametri ottimizzati & MAP \\
 \end{table}
 
 Grazie all'ES si \`e ottenuto un notevole miglioramento rispetto alla prima versione dove i parametri sono stati scelti manualmente e il valore di MAP si aggirava attorno al $0.25$. Inoltre dai grafici si pu\`o notare come l'algoritmo di ottimizzazione sia molto robusto, dato che dopo $\sim{300}$ valutazioni \`e gi\`a  molto vicino alla configurazione ottima. I risultati dell'ottimizzazione vengono discussi in Sezione \ref{sec:risult-sper}.
+
 
