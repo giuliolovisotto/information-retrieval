@@ -132,7 +132,7 @@ L'algoritmo effettua il reperimento con la funzione \textsc{baseline}, e prende 
 
 Per ottimizzare gli algoritmi di reperimento \`e stato scelto di utilizzare un Evolution Strategy~\cite{back1996evolutionary}, una tecnica di ottimizzazione basata sui principi che regolano l'evoluzione. Tecniche di questo tipo sono pi\`u robuste rispetto ai metodi di ricerca lineare per quanto riguarda i massimi locali. Il loro svantaggio consiste nel maggior numero di valutazioni richieste. In questo contesto una valutazione impiega circa 1-17 secondi a seconda della complessit\`a del metodo di reperimento. Ci\`o permette di eseguire l'algoritmo di ottimizzazione in un tempo accettabile.
 
-I parametri scelti per l'ottimizzazione cambiano in base alla funzione di reperimento (e quindi del laboratorio). Per il laboratorio 3 (\textsc{baseline}), 4 (\textsc{rf}) e 6 (\textsc{lsa}) sono stati ottimizzati $k_1$ e $b$. \`E stato ignorato $k_2$ in quanto non ci sono termini ripetuti nelle query e quindi  quest'ultimo non influisce sul punteggio. Per quanto riguarda il laboratorio 5 (\textsc{pagerank}) vengono ottimizzati $k_1, b$ ed $\alpha$. Invece per il laboratorio 7 (\textsc{hits}) vengono ottimizzati $k_1, b, \alpha, \beta$ e $\gamma$. Per lo pseudo relevance feedback del laboratorio 4 il numero di documenti considerati rilevanti $R = 50$, mentre per l'\textsc{lsa} del laboratorio 6 il numero di documenti da riordinare $N = 30$ e il numero di dimensioni per la riduzione $m=2$ (tali parametri sono interi e non si prestano ad un'ottimizzazione tramite ES). La funzione da massimizzare \`e la Mean Average Precision.
+I parametri scelti per l'ottimizzazione cambiano in base alla funzione di reperimento (e quindi del laboratorio). Per il laboratorio 3 (\textsc{baseline}), 4 (\textsc{rf}) e 6 (\textsc{lsa}) sono stati ottimizzati $k_1$ e $b$. \`E stato ignorato $k_2$ in quanto non ci sono termini ripetuti nelle query e quindi  quest'ultimo non influisce sul punteggio. Per quanto riguarda il laboratorio 5 (\textsc{pagerank}) vengono ottimizzati $k_1, b$ ed $\alpha$. Invece per il laboratorio 7 (\textsc{hits}) vengono ottimizzati $k_1, b, \alpha, \beta$ e $\gamma$. Per lo pseudo relevance feedback del laboratorio 4 il numero di documenti considerati rilevanti $R = 50$, mentre per l'\textsc{lsa} del laboratorio 6 il numero di documenti da riordinare $N = 30$ e il numero di dimensioni per la riduzione $m=2$ (tali parametri sono interi e non si prestano ad un'ottimizzazione tramite ES). Per \textsc{hits} laboratorio 7 il numero di elementi nel grafo radice $N=60$. La funzione da massimizzare \`e la Mean Average Precision.
 
 Figura \ref{fig:es_all} riporta l'andamento della MAP durante l'ottimizzazione della funzione di reperimento dei laboratori. 
 \begin{figure}[H]
@@ -201,7 +201,7 @@ metodo & parametri ottimizzati & MAP \\
 \textsc{rf pseudo}  & $k_1 = 0.02065, b = 0.0$ & $0.3022$ \\
 \textsc{pagerank} & $k_1 = 0.0237, b = 0.0, \alpha=0.7832$ & $0.3366$ \\
 \textsc{lsa} & $k_1 = 0.0087, b = 0.0$ & $0.2648$ \\
-\textsc{hits} & $k_1 = 0.0247, b = 0.0185, \alpha=1.0, \beta=0.1098, \gamma=0.0549$ & $0.3405$ \\
+\textsc{hits} & $k_1 = 0.0247, b = 0.0185, \alpha=1.0, \beta=0.1098, \gamma=0.0549$ & $0.3414$ \\
 \hline
 \end{tabular}
 \end{center}
