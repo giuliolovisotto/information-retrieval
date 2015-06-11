@@ -93,5 +93,9 @@ lab7/.ipynb_checkpoints
 *.fdb_latexmk
 *.fls
 */.ipynb_checkpoints
-/doc_term_mat.mtx
+doc_term_mat.mtx
+words_dict.txt
+results.txt
+docs_length.txt
+terms_mat.mtx
 *.*~
