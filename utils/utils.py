@@ -44,7 +44,7 @@ def indexing():
 
         docs_length = terms_mat.sum(axis=1)
 
-        terms_mat /= terms_mat.sum(axis=1)[:, None]
+        # terms_mat /= terms_mat.sum(axis=1)[:, None]
 
         terms_mat = sparse.csr_matrix(terms_mat)
         io.mmwrite("terms_mat.mtx", terms_mat)

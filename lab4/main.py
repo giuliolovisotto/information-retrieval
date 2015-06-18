@@ -160,7 +160,7 @@ def retrieve(k1, b, k2, R):
     results = np.memmap("tmp", shape=(len(queries.keys()), N, 2), mode='w+', dtype='float')
 
     for pj, (q, lst) in enumerate(queries.iteritems()):
-        p_esplicito(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N, R)
+        p_pseudo(freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N, R)
 
     # Parallel(n_jobs=cpu_count())(delayed(p_pseudo)(
     #    freq_mat, q, lst, words, docs_length, pj, results, k1, k2, b, avdl, N

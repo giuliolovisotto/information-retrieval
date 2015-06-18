@@ -47,7 +47,7 @@ lambda_v = 35
 # 0.3405
 
 lb = np.array([1e-8, 1e-8])
-ub = np.array([2.0, 1.0])
+ub = np.array([5.0, 1.0])
 
 N = 2
 
@@ -60,7 +60,7 @@ S = np.tile(np.array(np.tile(init_f, (1, N))), (10, 1)) * (X/np.sqrt(N))
 tau = 1/np.sqrt(2 * N)
 tau2 = 1/np.sqrt(2 * np.sqrt(N))
 
-call([_python_int, "../lab6/main.py", str(start[0]), str(start[1]), '1.0', '10'])
+call([_python_int, "../lab3/main.py", str(start[0]), str(start[1])])
 fit = evaluate_map("results.txt")
 
 fitn = np.ones(shape=(ps, )) * fit
@@ -89,7 +89,7 @@ def n_mutation(pop, sigmas, tau, tau2, lb, ub):
     return m_pop, m_sigm
 
 def single_eval(x, ind, out, j):
-    call([_python_int, "../lab6/main.py", str(x[0]), str(x[1]), '1.0', '10'])
+    call([_python_int, "../lab4/main.py", str(x[0]), str(x[1]), '1.0', '10'])
     out[j] = evaluate_map("results.txt")
 
 
